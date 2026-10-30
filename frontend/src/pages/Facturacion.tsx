@@ -146,6 +146,7 @@ export function Facturacion() {
         </div>
 
         {lines.length > 0 && (
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-left text-text-muted">
               <tr>
@@ -194,6 +195,7 @@ export function Facturacion() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
 
         <div className="flex items-center justify-between">

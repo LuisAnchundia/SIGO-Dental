@@ -220,7 +220,7 @@ export function Patients() {
         className="mb-4 w-full max-w-md rounded-lg border border-border-muted px-3 py-2 text-sm focus:border-brand focus:outline-none"
       />
 
-      <div className="overflow-hidden rounded-card bg-white shadow-card">
+      <div className="overflow-x-auto rounded-card bg-white shadow-card">
         <table className="w-full text-sm">
           <thead className="bg-canvas text-left text-text-muted">
             <tr>

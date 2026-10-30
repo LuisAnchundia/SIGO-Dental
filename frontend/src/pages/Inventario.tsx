@@ -91,7 +91,7 @@ export function Inventario() {
         </button>
       </form>
 
-      <div className="overflow-hidden rounded-card bg-white shadow-card">
+      <div className="overflow-x-auto rounded-card bg-white shadow-card">
         <table className="w-full text-sm">
           <thead className="bg-canvas text-left text-text-muted">
             <tr>

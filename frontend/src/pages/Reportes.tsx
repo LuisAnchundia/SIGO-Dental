@@ -56,6 +56,7 @@ export function Reportes() {
         <h3 className="mb-3 font-semibold text-text">
           Liquidación de honorarios (RF-13)
         </h3>
+        <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="text-left text-text-muted">
             <tr>
@@ -90,10 +91,12 @@ export function Reportes() {
             )}
           </tbody>
         </table>
+        </div>
       </section>
 
       <section className="rounded-card bg-white p-6 shadow-card">
         <h3 className="mb-3 font-semibold text-text">Inventario</h3>
+        <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="text-left text-text-muted">
             <tr>
@@ -126,6 +129,7 @@ export function Reportes() {
             ))}
           </tbody>
         </table>
+        </div>
       </section>
     </div>
   );

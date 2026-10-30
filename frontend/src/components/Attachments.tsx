@@ -86,7 +86,7 @@ export function Attachments({ patientId }: { patientId: string }) {
         )}
       </div>
 
-      <div className="overflow-hidden rounded-card border border-border bg-white">
+      <div className="overflow-x-auto rounded-card border border-border bg-white">
         <table className="w-full text-sm">
           <thead className="bg-canvas text-left text-text-muted">
             <tr>

@@ -115,6 +115,7 @@ export function Budgets({ patientId }: { patientId: string }) {
         </div>
 
         {items.length > 0 && (
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-left text-text-muted">
               <tr>
@@ -182,6 +183,7 @@ export function Budgets({ patientId }: { patientId: string }) {
               </tr>
             </tbody>
           </table>
+          </div>
         )}
         <button
           onClick={() => createMut.mutate()}
