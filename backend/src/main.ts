@@ -27,8 +27,16 @@ async function bootstrap() {
     }),
   );
 
-  // CORS para el frontend de desarrollo.
-  app.enableCors({ origin: ['http://localhost:5173'], credentials: true });
+  // CORS: localhost para desarrollo + orígenes de producción desde env var
+  // CORS_ORIGINS (separados por coma, ej. "https://sigo-dental.vercel.app").
+  const extraOrigins = (process.env.CORS_ORIGINS ?? '')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+  app.enableCors({
+    origin: ['http://localhost:5173', ...extraOrigins],
+    credentials: true,
+  });
 
   // OpenAPI / Swagger v3 (criterio de aceptación técnica del documento).
   const config = new DocumentBuilder()

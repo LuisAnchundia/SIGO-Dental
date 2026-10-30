@@ -1,10 +1,12 @@
 import axios from 'axios';
 import { useAuthStore } from '@/store/auth';
 
-// Cliente HTTP único. El proxy de Vite redirige /api -> backend NestJS.
-export const api = axios.create({
-  baseURL: '/api',
-});
+// Cliente HTTP único. En desarrollo el proxy de Vite redirige /api -> backend
+// NestJS local. En producción (Vercel) VITE_API_URL apunta al backend real
+// desplegado en Render (ej. https://sigo-dental-api.onrender.com/api).
+const baseURL = import.meta.env.VITE_API_URL ?? '/api';
+
+export const api = axios.create({ baseURL });
 
 // Adjunta el token JWT en cada petición.
 api.interceptors.request.use((config) => {
