@@ -11,9 +11,11 @@ facturación e inventario.
 
 Implementación por fases según el documento de requerimientos (`req.md`):
 
-- **Fase 1 — Core Administrativo y Turnos** 🚧 en desarrollo
-  Pacientes, agenda de citas, catálogo clínico, facturación básica, auth + RBAC.
-- Fase 2 — Core Clínico: odontograma, periodontograma, notas SOEP, consentimientos.
+- **Fase 1 — Core Administrativo y Turnos** ✅
+  Pacientes, agenda de citas, catálogo clínico, auth + RBAC, regla RN-03.
+- **Fase 2 — Core Clínico** ✅
+  Odontograma interactivo (RF-03), periodontograma (RF-04), notas SOEP
+  inmutables (RF-05) y consentimientos con firma (RF-06).
 - Fase 3 — Finanzas, inventarios y reportes.
 - Fase 4 — UAT, auditoría de seguridad y producción.
 

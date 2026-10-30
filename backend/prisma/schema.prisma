@@ -38,6 +38,9 @@ model User {
   appointments   Appointment[]   @relation("DentistAppointments")
   treatmentPlans TreatmentPlan[] @relation("DentistPlans")
   auditLogs      AuditLog[]
+  toothRecords   ToothRecord[]
+  clinicalNotes  ClinicalNote[]
+  consents       Consent[]
 
   @@map("users")
 }
@@ -80,6 +83,11 @@ model Patient {
   appointments   Appointment[]
   treatmentPlans TreatmentPlan[]
   invoices       Invoice[]
+  toothRecords       ToothRecord[]
+  perioMeasurements  PerioMeasurement[]
+  perioTeeth         PerioTooth[]
+  clinicalNotes      ClinicalNote[]
+  consents           Consent[]
 
   @@map("patients")
 }
@@ -285,4 +293,151 @@ model AuditLog {
 
   @@index([entity, timestamp])
   @@map("audit_logs")
+}
+
+// ===========================================================================
+// FASE 2 — CORE CLÍNICO
+// ===========================================================================
+
+// ---------------------------------------------------------------------------
+// ODONTOGRAMA (RF-03)
+// ---------------------------------------------------------------------------
+
+enum Dentition {
+  PERMANENTE // 32 dientes
+  TEMPORAL // 20 dientes (decidua)
+}
+
+enum ToothSurface {
+  MESIAL
+  DISTAL
+  OCLUSAL // oclusal / incisal
+  VESTIBULAR
+  LINGUAL // lingual / palatino
+  GENERAL // condición de todo el diente (exodoncia, implante, prótesis)
+}
+
+enum ToothCondition {
+  SANO
+  CARIES // rojo
+  RESTAURACION // azul
+  ENDODONCIA
+  IMPLANTE
+  PROTESIS_FIJA
+  PROTESIS_REMOVIBLE
+  EXODONCIA
+  SELLANTE
+  CORONA
+}
+
+// Estado actual por superficie dental. Único por (paciente, diente, superficie).
+model ToothRecord {
+  id         String         @id @default(uuid())
+  patientId  String
+  patient    Patient        @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  dentition  Dentition      @default(PERMANENTE)
+  toothNumber String        // notación FDI (ej. "11", "48")
+  surface    ToothSurface
+  condition  ToothCondition
+  notes      String?
+  recordedById String?
+  recordedBy   User?        @relation(fields: [recordedById], references: [id])
+  updatedAt  DateTime       @updatedAt
+
+  @@unique([patientId, toothNumber, surface])
+  @@map("tooth_records")
+}
+
+// ---------------------------------------------------------------------------
+// PERIODONTOGRAMA (RF-04)
+// ---------------------------------------------------------------------------
+
+enum PerioSite {
+  MV // mesio-vestibular
+  V  // vestibular
+  DV // disto-vestibular
+  MP // mesio-palatino/lingual
+  P  // palatino/lingual
+  DP // disto-palatino/lingual
+}
+
+// Profundidad al sondaje y márgenes por sitio (6 por diente).
+model PerioMeasurement {
+  id            String    @id @default(uuid())
+  patientId     String
+  patient       Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  toothNumber   String
+  site          PerioSite
+  probingDepth  Int       @default(0) // mm
+  gingivalMargin Int      @default(0) // mm (negativo = recesión)
+  bleeding      Boolean   @default(false) // sangrado al sondaje
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([patientId, toothNumber, site])
+  @@map("perio_measurements")
+}
+
+// Datos de periodonto por diente (movilidad, furca). Único por (paciente, diente).
+model PerioTooth {
+  id          String   @id @default(uuid())
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  toothNumber String
+  mobility    Int      @default(0) // 0-3
+  furcation   Int      @default(0) // 0-3
+  updatedAt   DateTime @updatedAt
+
+  @@unique([patientId, toothNumber])
+  @@map("perio_teeth")
+}
+
+// ---------------------------------------------------------------------------
+// NOTAS DE EVOLUCIÓN SOEP (RF-05) — bitácora inmutable y firmada
+// ---------------------------------------------------------------------------
+
+model ClinicalNote {
+  id         String   @id @default(uuid())
+  patientId  String
+  patient    Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id])
+  subjective String // S
+  objective  String // O
+  evaluation String // E
+  plan       String // P
+  signedAt   DateTime @default(now()) // firma digital del profesional
+  // Tras esta fecha la nota queda bloqueada contra edición (RF-05, default 24h)
+  lockedAt   DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([patientId, createdAt])
+  @@map("clinical_notes")
+}
+
+// ---------------------------------------------------------------------------
+// CONSENTIMIENTO INFORMADO DIGITAL (RF-06)
+// ---------------------------------------------------------------------------
+
+enum ConsentMethod {
+  FIRMA_BIOMETRICA // firma en pantalla táctil
+  OTP // validación por código enviado al paciente
+}
+
+model Consent {
+  id              String        @id @default(uuid())
+  patientId       String
+  patient         Patient       @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  title           String
+  body            String // texto legal del consentimiento por procedimiento
+  method          ConsentMethod @default(FIRMA_BIOMETRICA)
+  signatureDataUrl String?      @db.Text // imagen de la firma (data URL)
+  patientSignerName String?
+  signedAt        DateTime?
+  createdById     String?
+  createdBy       User?         @relation(fields: [createdById], references: [id])
+  createdAt       DateTime      @default(now())
+
+  @@index([patientId, createdAt])
+  @@map("consents")
 }

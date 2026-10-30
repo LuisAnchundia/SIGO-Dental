@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import type { Patient } from '@/types';
@@ -246,9 +247,12 @@ export function Patients() {
                 <tr key={p.id} className="hover:bg-slate-50">
                   <td className="px-4 py-3 text-slate-600">{p.documentId}</td>
                   <td className="px-4 py-3">
-                    <span className="font-medium text-slate-800">
+                    <Link
+                      to={`/pacientes/${p.id}`}
+                      className="font-medium text-teal-700 hover:underline"
+                    >
                       {p.firstName} {p.lastName}
-                    </span>
+                    </Link>
                     <AlertBadge alerts={p.medicalHistory?.criticalAlerts ?? []} />
                   </td>
                   <td className="px-4 py-3 text-slate-600">

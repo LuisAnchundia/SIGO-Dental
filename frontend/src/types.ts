@@ -57,3 +57,74 @@ export interface Operatory {
   id: string;
   name: string;
 }
+
+// ---- Fase 2: core clínico ----
+
+export type ToothSurface =
+  | 'MESIAL'
+  | 'DISTAL'
+  | 'OCLUSAL'
+  | 'VESTIBULAR'
+  | 'LINGUAL'
+  | 'GENERAL';
+
+export type ToothCondition =
+  | 'SANO'
+  | 'CARIES'
+  | 'RESTAURACION'
+  | 'ENDODONCIA'
+  | 'IMPLANTE'
+  | 'PROTESIS_FIJA'
+  | 'PROTESIS_REMOVIBLE'
+  | 'EXODONCIA'
+  | 'SELLANTE'
+  | 'CORONA';
+
+export interface ToothRecord {
+  id: string;
+  toothNumber: string;
+  surface: ToothSurface;
+  condition: ToothCondition;
+  dentition: 'PERMANENTE' | 'TEMPORAL';
+}
+
+export type PerioSite = 'MV' | 'V' | 'DV' | 'MP' | 'P' | 'DP';
+
+export interface PerioMeasurement {
+  id: string;
+  toothNumber: string;
+  site: PerioSite;
+  probingDepth: number;
+  gingivalMargin: number;
+  bleeding: boolean;
+}
+
+export interface PerioTooth {
+  id: string;
+  toothNumber: string;
+  mobility: number;
+  furcation: number;
+}
+
+export interface ClinicalNote {
+  id: string;
+  subjective: string;
+  objective: string;
+  evaluation: string;
+  plan: string;
+  signedAt: string;
+  lockedAt: string;
+  createdAt: string;
+  author: { id: string; fullName: string };
+}
+
+export interface Consent {
+  id: string;
+  title: string;
+  body: string;
+  method: 'FIRMA_BIOMETRICA' | 'OTP';
+  signatureDataUrl?: string | null;
+  patientSignerName?: string | null;
+  signedAt?: string | null;
+  createdAt: string;
+}

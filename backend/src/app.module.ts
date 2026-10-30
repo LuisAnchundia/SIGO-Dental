@@ -9,6 +9,10 @@ import { PatientsModule } from './patients/patients.module';
 import { OperatoriesModule } from './operatories/operatories.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { ProceduresModule } from './procedures/procedures.module';
+import { OdontogramModule } from './clinical/odontogram.module';
+import { PeriodontogramModule } from './clinical/periodontogram.module';
+import { ClinicalNotesModule } from './clinical/clinical-notes.module';
+import { ConsentsModule } from './clinical/consents.module';
 
 @Module({
   imports: [
@@ -20,6 +24,10 @@ import { ProceduresModule } from './procedures/procedures.module';
     OperatoriesModule,
     AppointmentsModule,
     ProceduresModule,
+    OdontogramModule,
+    PeriodontogramModule,
+    ClinicalNotesModule,
+    ConsentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

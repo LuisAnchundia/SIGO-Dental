@@ -5,6 +5,7 @@ import { Layout } from '@/components/Layout';
 import { Login } from '@/pages/Login';
 import { Dashboard } from '@/pages/Dashboard';
 import { Patients } from '@/pages/Patients';
+import { PatientDetail } from '@/pages/PatientDetail';
 import { Agenda } from '@/pages/Agenda';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -27,6 +28,7 @@ export default function App() {
       >
         <Route index element={<Dashboard />} />
         <Route path="pacientes" element={<Patients />} />
+        <Route path="pacientes/:id" element={<PatientDetail />} />
         <Route path="agenda" element={<Agenda />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
