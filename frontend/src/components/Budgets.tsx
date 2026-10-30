@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { useAuthStore } from '@/store/auth';
+import { CAN } from '@/lib/permissions';
 import type {
   AuthUser,
   Operatory,
@@ -20,6 +22,9 @@ interface Item {
 
 export function Budgets({ patientId }: { patientId: string }) {
   const qc = useQueryClient();
+  const role = useAuthStore((s) => s.user?.role);
+  const canCreate = CAN.createTreatmentPlan(role);
+  const canApprove = CAN.approveTreatmentPlan(role);
   const [dentistId, setDentistId] = useState('');
   const [items, setItems] = useState<Item[]>([]);
 
@@ -84,6 +89,7 @@ export function Budgets({ patientId }: { patientId: string }) {
 
   return (
     <div className="space-y-6">
+      {canCreate && (
       <div className="rounded-card border border-border bg-white p-5 space-y-3">
         <h3 className="font-semibold text-text">Nuevo presupuesto</h3>
         <div className="flex flex-wrap gap-3">
@@ -193,6 +199,7 @@ export function Budgets({ patientId }: { patientId: string }) {
           Crear presupuesto
         </button>
       </div>
+      )}
 
       <div className="space-y-3">
         {plans.map((plan) => (
@@ -205,7 +212,7 @@ export function Budgets({ patientId }: { patientId: string }) {
                 <span className="rounded-full bg-surface-muted px-2 py-0.5 text-xs font-semibold text-text-muted">
                   {plan.status}
                 </span>
-                {plan.status !== 'APROBADO_TOTAL' && (
+                {plan.status !== 'APROBADO_TOTAL' && canApprove && (
                   <button
                     onClick={() => approveMut.mutate(plan.id)}
                     className="text-xs font-semibold text-brand hover:underline"

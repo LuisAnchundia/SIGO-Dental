@@ -1,6 +1,8 @@
 import { useRef, useState, type PointerEvent, type RefObject } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { useAuthStore } from '@/store/auth';
+import { CAN } from '@/lib/permissions';
 import type { Consent } from '@/types';
 
 // Pad de firma biométrica en pantalla táctil / mouse (RF-06).
@@ -51,6 +53,7 @@ function SignaturePad({
 
 export function Consents({ patientId }: { patientId: string }) {
   const qc = useQueryClient();
+  const canCreate = CAN.createConsent(useAuthStore((s) => s.user?.role));
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [form, setForm] = useState({
     title: '',
@@ -92,6 +95,7 @@ export function Consents({ patientId }: { patientId: string }) {
 
   return (
     <div className="space-y-6">
+      {canCreate && (
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -162,6 +166,7 @@ export function Consents({ patientId }: { patientId: string }) {
           {mut.isPending ? 'Guardando…' : 'Registrar consentimiento'}
         </button>
       </form>
+      )}
 
       <div className="space-y-3">
         {consents.length === 0 && (

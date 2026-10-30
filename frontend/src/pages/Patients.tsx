@@ -2,6 +2,8 @@ import { useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { useAuthStore } from '@/store/auth';
+import { CAN } from '@/lib/permissions';
 import type { Patient } from '@/types';
 
 interface FormState {
@@ -51,6 +53,8 @@ function AlertBadge({ alerts }: { alerts: string[] }) {
 
 export function Patients() {
   const qc = useQueryClient();
+  const role = useAuthStore((s) => s.user?.role);
+  const canCreate = CAN.createPatient(role);
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<FormState>(EMPTY);
@@ -99,15 +103,17 @@ export function Patients() {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-text">Pacientes</h2>
-        <button
-          onClick={() => setShowForm((s) => !s)}
-          className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-active"
-        >
-          {showForm ? 'Cerrar' : 'Nuevo paciente'}
-        </button>
+        {canCreate && (
+          <button
+            onClick={() => setShowForm((s) => !s)}
+            className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-active"
+          >
+            {showForm ? 'Cerrar' : 'Nuevo paciente'}
+          </button>
+        )}
       </div>
 
-      {showForm && (
+      {showForm && canCreate && (
         <form
           onSubmit={(e) => {
             e.preventDefault();

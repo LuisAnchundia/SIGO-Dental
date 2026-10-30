@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { useAuthStore } from '@/store/auth';
+import { CAN } from '@/lib/permissions';
 import { FDI_PERMANENT_LOWER, FDI_PERMANENT_UPPER } from '@/lib/teeth';
 import type { PerioMeasurement, PerioSite, PerioTooth } from '@/types';
 
@@ -15,6 +17,7 @@ type ToothState = Record<string, { mobility: number; furcation: number }>;
 
 export function Periodontogram({ patientId }: { patientId: string }) {
   const qc = useQueryClient();
+  const canEdit = CAN.editPerio(useAuthStore((s) => s.user?.role));
   const [sites, setSites] = useState<SiteState>({});
   const [teeth, setTeeth] = useState<ToothState>({});
 
@@ -54,6 +57,7 @@ export function Periodontogram({ patientId }: { patientId: string }) {
     margin: number,
     bleeding: boolean,
   ) => {
+    if (!canEdit) return; // solo lectura para roles sin permiso (RBAC)
     setSites((prev) => ({
       ...prev,
       [`${tooth}|${site}`]: { pd, margin, bleeding },
@@ -72,6 +76,7 @@ export function Periodontogram({ patientId }: { patientId: string }) {
   };
 
   const saveTooth = (tooth: string, mobility: number, furcation: number) => {
+    if (!canEdit) return; // solo lectura para roles sin permiso (RBAC)
     setTeeth((prev) => ({ ...prev, [tooth]: { mobility, furcation } }));
     api
       .put(`/patients/${patientId}/periodontogram/tooth`, {
@@ -92,7 +97,15 @@ export function Periodontogram({ patientId }: { patientId: string }) {
         (nivel de inserción clínica = PS − MG) se calcula solo. Más movilidad,
         furca y sangrado (punto rojo) — RF-04.
       </p>
-      <div className="overflow-x-auto rounded-card border border-border bg-white">
+      {!canEdit && (
+        <p className="mb-3 rounded-lg bg-surface-muted px-3 py-2 text-xs text-text-muted">
+          🔒 Solo lectura: su rol no tiene permiso para modificar el
+          periodontograma.
+        </p>
+      )}
+      <div
+        className={`overflow-x-auto rounded-card border border-border bg-white ${!canEdit ? 'pointer-events-none opacity-70' : ''}`}
+      >
         <table className="min-w-full text-xs">
           <thead className="bg-canvas text-text-muted">
             <tr>

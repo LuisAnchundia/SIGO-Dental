@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/auth';
+import { canAccess } from '@/lib/permissions';
 
 const NAV = [
   { to: '/', label: 'Inicio', icon: 'dashboard', end: true },
@@ -59,6 +60,10 @@ export function Layout() {
     navigate('/login');
   };
 
+  // Solo se muestran las secciones que el rol del usuario puede usar
+  // (RBAC — espejo de los @Roles() del backend, ver lib/permissions.ts).
+  const visibleNav = NAV.filter((item) => canAccess(item.to, user?.role));
+
   const currentLabel = NAV.find((n) =>
     n.end ? location.pathname === n.to : location.pathname.startsWith(n.to),
   )?.label ?? 'Panel de gestión';
@@ -109,7 +114,7 @@ export function Layout() {
           </div>
 
           <nav className="flex flex-col gap-1 p-3">
-            {NAV.map((item) => (
+            {visibleNav.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}

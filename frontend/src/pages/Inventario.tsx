@@ -1,10 +1,14 @@
 import { useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { useAuthStore } from '@/store/auth';
+import { CAN } from '@/lib/permissions';
 import type { Supply } from '@/types';
 
 export function Inventario() {
   const qc = useQueryClient();
+  const role = useAuthStore((s) => s.user?.role);
+  const canManage = CAN.manageInventory(role);
   const [form, setForm] = useState({ name: '', unit: 'unidad', stock: '', minStock: '' });
   const [entradas, setEntradas] = useState<Record<string, string>>({});
 
@@ -45,6 +49,7 @@ export function Inventario() {
     <div>
       <h2 className="text-xl font-bold text-text mb-4">Inventario</h2>
 
+      {canManage && (
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -90,6 +95,7 @@ export function Inventario() {
           Agregar
         </button>
       </form>
+      )}
 
       <div className="overflow-x-auto rounded-card bg-white shadow-card">
         <table className="w-full text-sm">
@@ -119,27 +125,31 @@ export function Inventario() {
                   </td>
                   <td className="px-4 py-3 text-text-muted">{s.minStock}</td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="number"
-                        min={1}
-                        value={entradas[s.id] ?? ''}
-                        onChange={(e) =>
-                          setEntradas({ ...entradas, [s.id]: e.target.value })
-                        }
-                        className="w-20 rounded border border-border-muted px-2 py-1"
-                      />
-                      <button
-                        onClick={() => {
-                          const q = Number(entradas[s.id]);
-                          if (q > 0) moveMut.mutate({ id: s.id, quantity: q });
-                          setEntradas({ ...entradas, [s.id]: '' });
-                        }}
-                        className="rounded bg-slate-900 px-2 py-1 text-xs font-medium text-white"
-                      >
-                        + Entrada
-                      </button>
-                    </div>
+                    {canManage ? (
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="number"
+                          min={1}
+                          value={entradas[s.id] ?? ''}
+                          onChange={(e) =>
+                            setEntradas({ ...entradas, [s.id]: e.target.value })
+                          }
+                          className="w-20 rounded border border-border-muted px-2 py-1"
+                        />
+                        <button
+                          onClick={() => {
+                            const q = Number(entradas[s.id]);
+                            if (q > 0) moveMut.mutate({ id: s.id, quantity: q });
+                            setEntradas({ ...entradas, [s.id]: '' });
+                          }}
+                          className="rounded bg-slate-900 px-2 py-1 text-xs font-medium text-white"
+                        >
+                          + Entrada
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-text-muted">—</span>
+                    )}
                   </td>
                 </tr>
               );

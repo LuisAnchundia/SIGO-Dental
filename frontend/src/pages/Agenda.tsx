@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { useAuthStore } from '@/store/auth';
+import { CAN } from '@/lib/permissions';
 import type {
   Appointment,
   AppointmentStatus,
@@ -39,6 +41,9 @@ function fmt(iso: string) {
 
 export function Agenda() {
   const qc = useQueryClient();
+  const role = useAuthStore((s) => s.user?.role);
+  const canCreate = CAN.createAppointment(role);
+  const canChangeStatus = CAN.changeAppointmentStatus(role);
   const [error, setError] = useState('');
   const [form, setForm] = useState({
     patientId: '',
@@ -111,6 +116,7 @@ export function Agenda() {
     <div>
       <h2 className="text-xl font-bold text-text mb-4">Agenda de citas</h2>
 
+      {canCreate && (
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -205,6 +211,7 @@ export function Agenda() {
           {createMut.isPending ? 'Agendando…' : 'Agendar cita'}
         </button>
       </form>
+      )}
 
       <div className="overflow-x-auto rounded-card bg-white shadow-card">
         <table className="w-full text-sm">
@@ -238,22 +245,30 @@ export function Agenda() {
                   </td>
                   <td className="px-4 py-3 text-text-muted">{a.operatory.name}</td>
                   <td className="px-4 py-3">
-                    <select
-                      value={a.status}
-                      onChange={(e) =>
-                        statusMut.mutate({
-                          id: a.id,
-                          status: e.target.value as AppointmentStatus,
-                        })
-                      }
-                      className={`rounded-full border-0 px-2 py-1 text-xs font-semibold ${STATUS_STYLE[a.status]}`}
-                    >
-                      {STATUSES.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      ))}
-                    </select>
+                    {canChangeStatus ? (
+                      <select
+                        value={a.status}
+                        onChange={(e) =>
+                          statusMut.mutate({
+                            id: a.id,
+                            status: e.target.value as AppointmentStatus,
+                          })
+                        }
+                        className={`rounded-full border-0 px-2 py-1 text-xs font-semibold ${STATUS_STYLE[a.status]}`}
+                      >
+                        {STATUSES.map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span
+                        className={`rounded-full px-2 py-1 text-xs font-semibold ${STATUS_STYLE[a.status]}`}
+                      >
+                        {a.status}
+                      </span>
+                    )}
                   </td>
                 </tr>
               ))

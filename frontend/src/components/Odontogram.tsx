@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { useAuthStore } from '@/store/auth';
+import { CAN } from '@/lib/permissions';
 import {
   rowsFor,
   toNotation,
@@ -104,6 +106,7 @@ function Tooth({
 
 export function Odontogram({ patientId }: { patientId: string }) {
   const qc = useQueryClient();
+  const canEdit = CAN.editOdontogram(useAuthStore((s) => s.user?.role));
   const [notation, setNotation] = useState<Notation>('FDI');
   const [dentition, setDentition] = useState<DentitionKind>('PERMANENTE');
   const [tool, setTool] = useState<ToothCondition>('CARIES');
@@ -148,6 +151,7 @@ export function Odontogram({ patientId }: { patientId: string }) {
   const { upper, lower } = rowsFor(dentition);
 
   const apply = (toothNumber: string, surface: ToothSurface) => {
+    if (!canEdit) return; // solo lectura para roles sin permiso (RBAC)
     const whole = META[tool].whole;
     mut.mutate({
       toothNumber,
@@ -193,8 +197,15 @@ export function Odontogram({ patientId }: { patientId: string }) {
         />
       </div>
 
+      {!canEdit && (
+        <p className="rounded-lg bg-surface-muted px-3 py-2 text-xs text-text-muted">
+          🔒 Solo lectura: su rol no tiene permiso para modificar el
+          odontograma.
+        </p>
+      )}
+
       {/* Paleta de condiciones */}
-      <div className="flex flex-wrap gap-2">
+      <div className={`flex flex-wrap gap-2 ${!canEdit ? 'pointer-events-none opacity-50' : ''}`}>
         {CONDITIONS.map((c) => (
           <button
             key={c.key}

@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { useAuthStore } from '@/store/auth';
+import { CAN } from '@/lib/permissions';
 import type { ClinicalNote } from '@/types';
 
 const EMPTY = { subjective: '', objective: '', evaluation: '', plan: '' };
 
 export function SoepNotes({ patientId }: { patientId: string }) {
   const qc = useQueryClient();
+  const canCreate = CAN.createSoepNote(useAuthStore((s) => s.user?.role));
   const [form, setForm] = useState(EMPTY);
   const [editId, setEditId] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -46,6 +49,7 @@ export function SoepNotes({ patientId }: { patientId: string }) {
 
   return (
     <div className="space-y-6">
+      {canCreate && (
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -100,6 +104,7 @@ export function SoepNotes({ patientId }: { patientId: string }) {
           )}
         </div>
       </form>
+      )}
 
       <div className="space-y-3">
         {notes.length === 0 && (
@@ -122,12 +127,14 @@ export function SoepNotes({ patientId }: { patientId: string }) {
                     🔒 Bloqueada (inmutable)
                   </span>
                 ) : (
-                  <button
-                    onClick={() => startEdit(n)}
-                    className="text-xs font-semibold text-brand hover:underline"
-                  >
-                    Editar
-                  </button>
+                  canCreate && (
+                    <button
+                      onClick={() => startEdit(n)}
+                      className="text-xs font-semibold text-brand hover:underline"
+                    >
+                      Editar
+                    </button>
+                  )
                 )}
               </div>
               <dl className="grid gap-1 text-sm sm:grid-cols-2">

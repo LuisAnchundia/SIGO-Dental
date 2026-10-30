@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { useAuthStore } from '@/store/auth';
+import { CAN } from '@/lib/permissions';
 import type { Attachment } from '@/types';
 
 const CATEGORIES = ['RADIOGRAFIA', 'FOTO', 'PDF', 'GENERAL'];
@@ -13,6 +15,9 @@ function human(size: number) {
 
 export function Attachments({ patientId }: { patientId: string }) {
   const qc = useQueryClient();
+  const role = useAuthStore((s) => s.user?.role);
+  const canUpload = CAN.uploadAttachment(role);
+  const canDelete = CAN.deleteAttachment(role);
   const fileRef = useRef<HTMLInputElement>(null);
   const [category, setCategory] = useState('RADIOGRAFIA');
 
@@ -60,6 +65,7 @@ export function Attachments({ patientId }: { patientId: string }) {
 
   return (
     <div className="space-y-4">
+      {canUpload && (
       <div className="flex flex-wrap items-center gap-3 rounded-card border border-border bg-white p-5">
         <select
           value={category}
@@ -85,6 +91,7 @@ export function Attachments({ patientId }: { patientId: string }) {
           <span className="text-sm text-text-muted">Subiendo…</span>
         )}
       </div>
+      )}
 
       <div className="overflow-x-auto rounded-card border border-border bg-white">
         <table className="w-full text-sm">
@@ -122,12 +129,14 @@ export function Attachments({ patientId }: { patientId: string }) {
                     >
                       Descargar
                     </button>
-                    <button
-                      onClick={() => delMut.mutate(f.id)}
-                      className="ml-3 text-xs font-semibold text-red-600 hover:underline"
-                    >
-                      Eliminar
-                    </button>
+                    {canDelete && (
+                      <button
+                        onClick={() => delMut.mutate(f.id)}
+                        className="ml-3 text-xs font-semibold text-red-600 hover:underline"
+                      >
+                        Eliminar
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))
