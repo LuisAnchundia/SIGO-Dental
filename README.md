@@ -16,7 +16,10 @@ Implementación por fases según el documento de requerimientos (`req.md`):
 - **Fase 2 — Core Clínico** ✅
   Odontograma interactivo (RF-03), periodontograma (RF-04), notas SOEP
   inmutables (RF-05) y consentimientos con firma (RF-06).
-- Fase 3 — Finanzas, inventarios y reportes.
+- **Fase 3 — Finanzas, Inventarios y Reportes** ✅
+  Facturación/POS con pagos mixtos (RF-12), inventario con descargo
+  automático por receta (RF-14), presupuestos (RF-07/08), comisiones
+  (RF-13), cierre de caja ciego (RN-02) y reportes.
 - Fase 4 — UAT, auditoría de seguridad y producción.
 
 ## Arquitectura

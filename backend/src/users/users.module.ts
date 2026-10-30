@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -16,8 +18,16 @@ import {
   ApiPropertyOptional,
   ApiTags,
 } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
-import { Role } from '@prisma/client';
+import {
+  IsEmail,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+  MinLength,
+} from 'class-validator';
+import { CommissionType, Role } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -43,9 +53,31 @@ class CreateUserDto {
   password: string;
 }
 
+class CommissionDto {
+  @ApiProperty({ enum: CommissionType })
+  @IsEnum(CommissionType)
+  commissionType: CommissionType;
+
+  @ApiProperty({ example: 40, description: '% o monto según el tipo' })
+  @IsNumber()
+  @Min(0)
+  commissionValue: number;
+}
+
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async setCommission(id: string, dto: CommissionDto) {
+    const user = await this.prisma.user.update({
+      where: { id },
+      data: {
+        commissionType: dto.commissionType,
+        commissionValue: dto.commissionValue,
+      },
+    });
+    return this.strip(user);
+  }
 
   async create(dto: CreateUserDto) {
     const exists = await this.prisma.user.findUnique({
@@ -96,6 +128,13 @@ class UsersController {
   @ApiOperation({ summary: 'Crear usuario del personal (solo Admin TI)' })
   create(@Body() dto: CreateUserDto) {
     return this.service.create(dto);
+  }
+
+  @Patch(':id/commission')
+  @Roles(Role.ADMIN_TI)
+  @ApiOperation({ summary: 'Configurar comisión del profesional (RF-13)' })
+  setCommission(@Param('id') id: string, @Body() dto: CommissionDto) {
+    return this.service.setCommission(id, dto);
   }
 }
 

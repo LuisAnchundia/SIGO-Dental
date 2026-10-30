@@ -7,6 +7,7 @@ import { Odontogram } from '@/components/Odontogram';
 import { Periodontogram } from '@/components/Periodontogram';
 import { SoepNotes } from '@/components/SoepNotes';
 import { Consents } from '@/components/Consents';
+import { Budgets } from '@/components/Budgets';
 
 const TABS = [
   'Ficha',
@@ -14,6 +15,7 @@ const TABS = [
   'Periodontograma',
   'Notas SOEP',
   'Consentimientos',
+  'Presupuestos',
 ] as const;
 type Tab = (typeof TABS)[number];
 
@@ -88,6 +90,7 @@ export function PatientDetail() {
       {tab === 'Periodontograma' && <Periodontogram patientId={id} />}
       {tab === 'Notas SOEP' && <SoepNotes patientId={id} />}
       {tab === 'Consentimientos' && <Consents patientId={id} />}
+      {tab === 'Presupuestos' && <Budgets patientId={id} />}
     </div>
   );
 }

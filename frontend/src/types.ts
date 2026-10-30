@@ -128,3 +128,87 @@ export interface Consent {
   signedAt?: string | null;
   createdAt: string;
 }
+
+// ---- Fase 3: finanzas ----
+
+export type PaymentMethod =
+  | 'EFECTIVO'
+  | 'TARJETA_CREDITO'
+  | 'TARJETA_DEBITO'
+  | 'TRANSFERENCIA'
+  | 'SEGURO';
+
+export interface Payment {
+  id: string;
+  method: PaymentMethod;
+  amount: string;
+}
+
+export interface Procedure {
+  id: string;
+  code: string;
+  name: string;
+  basePrice: string;
+  labCost: string;
+}
+
+export interface Invoice {
+  id: string;
+  number: string;
+  status: 'EMITIDA' | 'PAGADA' | 'PARCIAL' | 'ANULADA';
+  subtotal: string;
+  tax: string;
+  total: string;
+  issuedAt: string;
+  patient?: { firstName: string; lastName: string };
+  payments: Payment[];
+}
+
+export interface Supply {
+  id: string;
+  name: string;
+  unit: string;
+  stock: number;
+  minStock: number;
+  lowStock?: boolean;
+}
+
+export interface CashSession {
+  id: string;
+  openingAmount: string;
+  openedAt: string;
+  countedAmount?: string | null;
+  expectedAmount?: string | null;
+  difference?: string | null;
+  status?: 'ABIERTA' | 'CERRADA';
+}
+
+export interface CommissionRow {
+  dentistId: string;
+  dentist: string;
+  type: string;
+  value: number;
+  base: number;
+  labCost: number;
+  procedures: number;
+  commission: number;
+}
+
+export interface TreatmentItem {
+  id: string;
+  phase: number;
+  toothNumber?: string | null;
+  fee: string;
+  labCost: string;
+  discount: string;
+  isApproved: boolean;
+  procedure: { name: string; code: string };
+}
+
+export interface TreatmentPlan {
+  id: string;
+  status: string;
+  notes?: string | null;
+  createdAt: string;
+  items: TreatmentItem[];
+}

@@ -31,6 +31,9 @@ model User {
   role         Role
   isActive     Boolean  @default(true)
   mfaEnabled   Boolean  @default(false) // base para MFA (RNF-05)
+  // Configuración de comisión / honorarios (RF-13)
+  commissionType  CommissionType @default(PORCENTAJE)
+  commissionValue Decimal        @default(0) @db.Decimal(10, 2)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -41,6 +44,8 @@ model User {
   toothRecords   ToothRecord[]
   clinicalNotes  ClinicalNote[]
   consents       Consent[]
+  invoices       Invoice[]       @relation("DentistInvoices")
+  cashSessions   CashSession[]
 
   @@map("users")
 }
@@ -173,6 +178,8 @@ model Procedure {
   isActive  Boolean  @default(true)
 
   treatmentItems TreatmentItem[]
+  supplies       ProcedureSupply[] // receta estándar de consumo (RF-14)
+  invoiceItems   InvoiceItem[]
 
   @@map("procedures")
 }
@@ -241,6 +248,9 @@ model Invoice {
   number    String        @unique
   patientId String
   patient   Patient       @relation(fields: [patientId], references: [id])
+  // Profesional tratante (para liquidación de honorarios, RF-13)
+  dentistId String?
+  dentist   User?         @relation("DentistInvoices", fields: [dentistId], references: [id])
   status    InvoiceStatus @default(EMITIDA)
   subtotal  Decimal       @db.Decimal(10, 2)
   tax       Decimal       @default(0) @db.Decimal(10, 2)
@@ -254,13 +264,16 @@ model Invoice {
 }
 
 model InvoiceItem {
-  id          String  @id @default(uuid())
+  id          String     @id @default(uuid())
   invoiceId   String
-  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoice     Invoice    @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  // Procedimiento del catálogo (dispara descargo de insumos, RF-14)
+  procedureId String?
+  procedure   Procedure? @relation(fields: [procedureId], references: [id])
   description String
-  quantity    Int     @default(1)
-  unitPrice   Decimal @db.Decimal(10, 2)
-  lineTotal   Decimal @db.Decimal(10, 2)
+  quantity    Int        @default(1)
+  unitPrice   Decimal    @db.Decimal(10, 2)
+  lineTotal   Decimal    @db.Decimal(10, 2)
 
   @@map("invoice_items")
 }
@@ -419,6 +432,12 @@ model ClinicalNote {
 // CONSENTIMIENTO INFORMADO DIGITAL (RF-06)
 // ---------------------------------------------------------------------------
 
+enum CommissionType {
+  PORCENTAJE // % sobre honorarios
+  MONTO_FIJO // monto fijo por procedimiento
+  PORCENTAJE_NETO // % tras deducir costo de laboratorio/materiales
+}
+
 enum ConsentMethod {
   FIRMA_BIOMETRICA // firma en pantalla táctil
   OTP // validación por código enviado al paciente
@@ -440,4 +459,84 @@ model Consent {
 
   @@index([patientId, createdAt])
   @@map("consents")
+}
+
+// ===========================================================================
+// FASE 3 — INVENTARIO, CAJA Y REPORTES
+// ===========================================================================
+
+// ---------------------------------------------------------------------------
+// INVENTARIO Y DESCARGO AUTOMÁTICO (RF-14)
+// ---------------------------------------------------------------------------
+
+model Supply {
+  id        String  @id @default(uuid())
+  name      String  @unique // ej. "Anestesia lidocaína", "Guantes"
+  unit      String  @default("unidad") // unidad, ml, par, caja
+  stock     Int     @default(0)
+  minStock  Int     @default(0) // umbral de reposición
+  isActive  Boolean @default(true)
+
+  recipes   ProcedureSupply[]
+  movements StockMovement[]
+
+  @@map("supplies")
+}
+
+// Receta estándar de consumo: insumos que descarga un procedimiento.
+model ProcedureSupply {
+  id          String    @id @default(uuid())
+  procedureId String
+  procedure   Procedure @relation(fields: [procedureId], references: [id], onDelete: Cascade)
+  supplyId    String
+  supply      Supply    @relation(fields: [supplyId], references: [id], onDelete: Cascade)
+  quantity    Int       @default(1)
+
+  @@unique([procedureId, supplyId])
+  @@map("procedure_supplies")
+}
+
+enum StockMovementType {
+  ENTRADA // compra / reposición
+  SALIDA // consumo clínico (descargo)
+  AJUSTE // corrección de inventario
+}
+
+model StockMovement {
+  id        String            @id @default(uuid())
+  supplyId  String
+  supply    Supply            @relation(fields: [supplyId], references: [id], onDelete: Cascade)
+  type      StockMovementType
+  quantity  Int // positivo entrada, negativo salida
+  reason    String?
+  createdAt DateTime          @default(now())
+
+  @@index([supplyId, createdAt])
+  @@map("stock_movements")
+}
+
+// ---------------------------------------------------------------------------
+// CIERRE DE CAJA CIEGO (RN-02)
+// ---------------------------------------------------------------------------
+
+enum CashSessionStatus {
+  ABIERTA
+  CERRADA
+}
+
+model CashSession {
+  id             String            @id @default(uuid())
+  openedById     String
+  openedBy       User              @relation(fields: [openedById], references: [id])
+  openingAmount  Decimal           @db.Decimal(10, 2)
+  status         CashSessionStatus @default(ABIERTA)
+  openedAt       DateTime          @default(now())
+  closedAt       DateTime?
+  // El cajero ingresa el conteo físico ANTES de ver el total teórico (RN-02)
+  countedAmount  Decimal?          @db.Decimal(10, 2)
+  expectedAmount Decimal?          @db.Decimal(10, 2)
+  difference     Decimal?          @db.Decimal(10, 2)
+  notes          String?
+
+  @@map("cash_sessions")
 }

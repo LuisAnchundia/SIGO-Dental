@@ -68,6 +68,66 @@ async function main() {
     });
   }
 
+  // Comisión del odontólogo (RF-13): 40% sobre honorarios.
+  await prisma.user.update({
+    where: { id: dentist.id },
+    data: { commissionType: 'PORCENTAJE', commissionValue: 40 },
+  });
+
+  // Insumos de inventario (RF-14)
+  const supplies = [
+    { name: 'Anestesia lidocaína', unit: 'cartucho', stock: 100, minStock: 20 },
+    { name: 'Guantes', unit: 'par', stock: 200, minStock: 40 },
+    { name: 'Resina compuesta', unit: 'jeringa', stock: 30, minStock: 10 },
+    { name: 'Agujas dentales', unit: 'unidad', stock: 150, minStock: 30 },
+  ];
+  for (const s of supplies) {
+    await prisma.supply.upsert({
+      where: { name: s.name },
+      update: {},
+      create: s,
+    });
+  }
+
+  // Recetas de consumo: qué insumos descarga cada procedimiento (RF-14)
+  const anest = await prisma.supply.findUnique({
+    where: { name: 'Anestesia lidocaína' },
+  });
+  const guantes = await prisma.supply.findUnique({ where: { name: 'Guantes' } });
+  const resina = await prisma.supply.findUnique({
+    where: { name: 'Resina compuesta' },
+  });
+  const aguja = await prisma.supply.findUnique({
+    where: { name: 'Agujas dentales' },
+  });
+  const restauracion = await prisma.procedure.findUnique({
+    where: { code: 'D2150' },
+  });
+  const extraccion = await prisma.procedure.findUnique({
+    where: { code: 'D7140' },
+  });
+
+  const recipes = [
+    { procedureId: restauracion!.id, supplyId: anest!.id, quantity: 1 },
+    { procedureId: restauracion!.id, supplyId: guantes!.id, quantity: 1 },
+    { procedureId: restauracion!.id, supplyId: resina!.id, quantity: 1 },
+    { procedureId: extraccion!.id, supplyId: anest!.id, quantity: 2 },
+    { procedureId: extraccion!.id, supplyId: guantes!.id, quantity: 1 },
+    { procedureId: extraccion!.id, supplyId: aguja!.id, quantity: 1 },
+  ];
+  for (const r of recipes) {
+    await prisma.procedureSupply.upsert({
+      where: {
+        procedureId_supplyId: {
+          procedureId: r.procedureId,
+          supplyId: r.supplyId,
+        },
+      },
+      update: {},
+      create: r,
+    });
+  }
+
   // Pacientes de ejemplo, uno con alerta médica crítica (RF-02)
   await prisma.patient.upsert({
     where: { documentId: '1312345678' },

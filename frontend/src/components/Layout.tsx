@@ -6,6 +6,10 @@ const NAV = [
   { to: '/', label: 'Inicio', end: true },
   { to: '/pacientes', label: 'Pacientes' },
   { to: '/agenda', label: 'Agenda' },
+  { to: '/facturacion', label: 'Facturación' },
+  { to: '/caja', label: 'Caja' },
+  { to: '/inventario', label: 'Inventario' },
+  { to: '/reportes', label: 'Reportes' },
 ];
 
 // Minutos de inactividad antes del cierre automático (RNF-05).
