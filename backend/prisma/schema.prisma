@@ -47,6 +47,7 @@ model User {
   consents       Consent[]
   invoices       Invoice[]       @relation("DentistInvoices")
   cashSessions   CashSession[]
+  uploadedFiles  Attachment[]
 
   @@map("users")
 }
@@ -94,6 +95,7 @@ model Patient {
   perioTeeth         PerioTooth[]
   clinicalNotes      ClinicalNote[]
   consents           Consent[]
+  attachments        Attachment[]
 
   @@map("patients")
 }
@@ -160,6 +162,8 @@ model Appointment {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  notifications Notification[]
 
   @@index([operatoryId, startsAt])
   @@index([dentistId, startsAt])
@@ -257,6 +261,10 @@ model Invoice {
   tax       Decimal       @default(0) @db.Decimal(10, 2)
   total     Decimal       @db.Decimal(10, 2)
   issuedAt  DateTime      @default(now())
+  // Timbrado fiscal electrónico (RF-12) — se llena al autorizar la factura.
+  authorizationNumber String?
+  accessKey           String? // clave de acceso (49 dígitos en SRI)
+  authorizedAt        DateTime?
 
   items    InvoiceItem[]
   payments Payment[]
@@ -286,6 +294,8 @@ model Payment {
   method    PaymentMethod
   amount    Decimal       @db.Decimal(10, 2)
   paidAt    DateTime      @default(now())
+  // Referencia de la pasarela de pago (RF-12) para pagos con tarjeta.
+  transactionRef String?
 
   @@map("payments")
 }
@@ -540,4 +550,58 @@ model CashSession {
   notes          String?
 
   @@map("cash_sessions")
+}
+
+// ---------------------------------------------------------------------------
+// ALMACENAMIENTO DE ARCHIVOS (Rx, fotos, PDFs) — arquitectura §7
+// ---------------------------------------------------------------------------
+
+model Attachment {
+  id           String   @id @default(uuid())
+  patientId    String
+  patient      Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  filename     String   // nombre en disco
+  originalName String   // nombre original
+  mimeType     String
+  size         Int      // bytes
+  category     String   @default("GENERAL") // RADIOGRAFIA | FOTO | PDF | GENERAL
+  uploadedById String?
+  uploadedBy   User?    @relation(fields: [uploadedById], references: [id])
+  createdAt    DateTime @default(now())
+
+  @@index([patientId, createdAt])
+  @@map("attachments")
+}
+
+// ---------------------------------------------------------------------------
+// NOTIFICACIONES TRANSACCIONALES (RF-11) — recordatorios 48h y 24h
+// ---------------------------------------------------------------------------
+
+enum NotificationChannel {
+  WHATSAPP
+  SMS
+  EMAIL
+}
+
+enum NotificationStatus {
+  PENDIENTE
+  ENVIADO
+  FALLIDO
+}
+
+model Notification {
+  id            String              @id @default(uuid())
+  appointmentId String
+  appointment   Appointment         @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  channel       NotificationChannel
+  to            String // destino (teléfono o correo)
+  message       String
+  scheduledFor  DateTime // 48h / 24h antes de la cita
+  status        NotificationStatus  @default(PENDIENTE)
+  sentAt        DateTime?
+  providerRef   String? // id del proveedor (Twilio/Meta) al enviar
+  createdAt     DateTime            @default(now())
+
+  @@index([status, scheduledFor])
+  @@map("notifications")
 }

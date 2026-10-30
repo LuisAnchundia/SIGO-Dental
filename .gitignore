@@ -34,5 +34,8 @@ Thumbs.db
 coverage/
 **/coverage/
 
+# Archivos subidos (adjuntos del expediente)
+backend/uploads/
+
 # Archivos temporales
 *.tmp

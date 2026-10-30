@@ -5,6 +5,7 @@ import type {
   Appointment,
   AppointmentStatus,
   AuthUser,
+  NotificationItem,
   Operatory,
   Patient,
 } from '@/types';
@@ -93,6 +94,17 @@ export function Agenda() {
       (await api.patch(`/appointments/${v.id}/status`, { status: v.status }))
         .data,
     onSuccess: () => qc.invalidateQueries({ queryKey: ['appointments'] }),
+  });
+
+  const { data: notifs = [] } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: async () =>
+      (await api.get<NotificationItem[]>('/notifications')).data,
+  });
+
+  const processMut = useMutation({
+    mutationFn: async () => (await api.post('/notifications/process')).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['notifications'] }),
   });
 
   return (
@@ -248,6 +260,70 @@ export function Agenda() {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Recordatorios automáticos (RF-11) */}
+      <div className="mt-6">
+        <div className="mb-2 flex items-center justify-between">
+          <h3 className="font-semibold text-slate-800">
+            Recordatorios automáticos (48h / 24h)
+          </h3>
+          <button
+            onClick={() => processMut.mutate()}
+            disabled={processMut.isPending}
+            className="rounded-lg bg-slate-900 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+          >
+            Procesar ahora
+          </button>
+        </div>
+        <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 text-left text-slate-500">
+              <tr>
+                <th className="px-4 py-2 font-medium">Canal</th>
+                <th className="px-4 py-2 font-medium">Destino</th>
+                <th className="px-4 py-2 font-medium">Programado</th>
+                <th className="px-4 py-2 font-medium">Estado</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {notifs.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-4 py-4 text-center text-slate-400">
+                    Sin recordatorios. Crea una cita para programarlos.
+                  </td>
+                </tr>
+              ) : (
+                notifs.slice(0, 12).map((n) => (
+                  <tr key={n.id}>
+                    <td className="px-4 py-2 text-slate-600">{n.channel}</td>
+                    <td className="px-4 py-2 text-slate-600">{n.to}</td>
+                    <td className="px-4 py-2 text-slate-500">
+                      {new Date(n.scheduledFor).toLocaleString('es-EC')}
+                    </td>
+                    <td className="px-4 py-2">
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                          n.status === 'ENVIADO'
+                            ? 'bg-green-100 text-green-700'
+                            : n.status === 'FALLIDO'
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-amber-100 text-amber-700'
+                        }`}
+                      >
+                        {n.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-1 text-xs text-slate-400">
+          Envío simulado (listo para WhatsApp/SMS/Email reales con claves de
+          Twilio / Meta / Resend).
+        </p>
       </div>
     </div>
   );

@@ -7,7 +7,10 @@ import type { PerioMeasurement, PerioSite, PerioTooth } from '@/types';
 const SITES: PerioSite[] = ['MV', 'V', 'DV', 'MP', 'P', 'DP'];
 const ALL_TEETH = [...FDI_PERMANENT_UPPER, ...FDI_PERMANENT_LOWER];
 
-type SiteState = Record<string, { pd: number; bleeding: boolean }>; // key: tooth|site
+type SiteState = Record<
+  string,
+  { pd: number; margin: number; bleeding: boolean }
+>; // key: tooth|site
 type ToothState = Record<string, { mobility: number; furcation: number }>;
 
 export function Periodontogram({ patientId }: { patientId: string }) {
@@ -32,6 +35,7 @@ export function Periodontogram({ patientId }: { patientId: string }) {
     for (const m of data.measurements) {
       s[`${m.toothNumber}|${m.site}`] = {
         pd: m.probingDepth,
+        margin: m.gingivalMargin,
         bleeding: m.bleeding,
       };
     }
@@ -47,14 +51,19 @@ export function Periodontogram({ patientId }: { patientId: string }) {
     tooth: string,
     site: PerioSite,
     pd: number,
+    margin: number,
     bleeding: boolean,
   ) => {
-    setSites((prev) => ({ ...prev, [`${tooth}|${site}`]: { pd, bleeding } }));
+    setSites((prev) => ({
+      ...prev,
+      [`${tooth}|${site}`]: { pd, margin, bleeding },
+    }));
     api
       .put(`/patients/${patientId}/periodontogram/measurement`, {
         toothNumber: tooth,
         site,
         probingDepth: pd,
+        gingivalMargin: margin,
         bleeding,
       })
       .then(() =>
@@ -78,8 +87,10 @@ export function Periodontogram({ patientId }: { patientId: string }) {
   return (
     <div>
       <p className="mb-3 text-sm text-slate-500">
-        Profundidad al sondaje (mm) por 6 sitios, sangrado y movilidad (RF-04).
-        La celda se marca en rojo si hay sangrado al sondaje.
+        Por cada sitio: profundidad al sondaje <strong>PS</strong> (mm) y margen
+        gingival <strong>MG</strong> (negativo = recesión). El <strong>NIC</strong>
+        (nivel de inserción clínica = PS − MG) se calcula solo. Más movilidad,
+        furca y sangrado (punto rojo) — RF-04.
       </p>
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
         <table className="min-w-full text-xs">
@@ -106,8 +117,10 @@ export function Periodontogram({ patientId }: { patientId: string }) {
                   {SITES.map((site) => {
                     const st = sites[`${tooth}|${site}`] ?? {
                       pd: 0,
+                      margin: 0,
                       bleeding: false,
                     };
+                    const nic = st.pd - st.margin;
                     return (
                       <td key={site} className="px-1 py-1 text-center">
                         <div className="flex flex-col items-center gap-0.5">
@@ -115,12 +128,14 @@ export function Periodontogram({ patientId }: { patientId: string }) {
                             type="number"
                             min={0}
                             max={15}
+                            title="Profundidad al sondaje (mm)"
                             value={st.pd || ''}
                             onChange={(e) =>
                               saveSite(
                                 tooth,
                                 site,
                                 Number(e.target.value || 0),
+                                st.margin,
                                 st.bleeding,
                               )
                             }
@@ -130,10 +145,30 @@ export function Periodontogram({ patientId }: { patientId: string }) {
                                 : 'border-slate-300'
                             }`}
                           />
+                          <input
+                            type="number"
+                            min={-10}
+                            max={10}
+                            title="Margen gingival (mm)"
+                            value={st.margin || ''}
+                            onChange={(e) =>
+                              saveSite(
+                                tooth,
+                                site,
+                                st.pd,
+                                Number(e.target.value || 0),
+                                st.bleeding,
+                              )
+                            }
+                            className="w-10 rounded border border-slate-200 px-1 py-0.5 text-center text-slate-500"
+                          />
+                          <span className="text-[10px] font-semibold text-slate-500">
+                            NIC {nic}
+                          </span>
                           <button
                             type="button"
                             onClick={() =>
-                              saveSite(tooth, site, st.pd, !st.bleeding)
+                              saveSite(tooth, site, st.pd, st.margin, !st.bleeding)
                             }
                             title="Sangrado al sondaje"
                             className={`h-2.5 w-2.5 rounded-full ${

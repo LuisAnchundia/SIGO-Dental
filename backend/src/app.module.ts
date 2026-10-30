@@ -21,6 +21,8 @@ import { InventoryModule } from './finance/inventory.module';
 import { CashModule } from './finance/cash.module';
 import { TreatmentPlansModule } from './finance/treatment-plans.module';
 import { ReportsModule } from './finance/reports.module';
+import { AttachmentsModule } from './files/attachments.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -43,6 +45,8 @@ import { ReportsModule } from './finance/reports.module';
     CashModule,
     TreatmentPlansModule,
     ReportsModule,
+    AttachmentsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [

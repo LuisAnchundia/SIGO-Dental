@@ -160,6 +160,8 @@ export interface Invoice {
   tax: string;
   total: string;
   issuedAt: string;
+  authorizationNumber?: string | null;
+  authorizedAt?: string | null;
   patient?: { firstName: string; lastName: string };
   payments: Payment[];
 }
@@ -208,7 +210,28 @@ export interface TreatmentItem {
 export interface TreatmentPlan {
   id: string;
   status: string;
+  dentistId: string;
   notes?: string | null;
   createdAt: string;
   items: TreatmentItem[];
+}
+
+export interface Attachment {
+  id: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+  category: string;
+  createdAt: string;
+  uploadedBy?: { fullName: string } | null;
+}
+
+export interface NotificationItem {
+  id: string;
+  channel: 'WHATSAPP' | 'SMS' | 'EMAIL';
+  to: string;
+  message: string;
+  scheduledFor: string;
+  status: 'PENDIENTE' | 'ENVIADO' | 'FALLIDO';
+  sentAt?: string | null;
 }

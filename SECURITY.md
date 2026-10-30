@@ -51,8 +51,19 @@ funcionales del documento (sección 5) y OWASP Top 10.
 ## Pruebas (criterio de aceptación 8.2)
 
 - Pruebas unitarias de las reglas críticas: RN-03 (solape de citas), RN-02
-  (cierre de caja), estado de factura (RF-12) y alertas médicas (RF-02).
+  (cierre de caja), estado de factura y timbrado (RF-12), alertas médicas
+  (RF-02) y procesamiento de recordatorios (RF-11). 12 pruebas.
 - Ejecución: `npm test` (backend). Cobertura: `npm run test:cov`.
+
+## Análisis de dependencias (SAST de dependencias)
+
+- **Frontend: 0 vulnerabilidades** (`npm audit`).
+- **Backend runtime: sin vulnerabilidades.** Las 3 advertencias "high" que
+  reporta `npm audit` provienen únicamente de `@prisma/config`, dependencia del
+  **CLI de Prisma** (`prisma`), que es `devDependency` y se usa solo para
+  migraciones; **no forma parte del runtime** (`@prisma/client`) ni de la imagen
+  de producción. Resolverlas exige subir a Prisma 8 (cambio mayor), por lo que
+  se documenta como riesgo aceptado de tooling de desarrollo.
 
 ## Documentación de API
 

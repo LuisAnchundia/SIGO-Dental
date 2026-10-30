@@ -7,10 +7,14 @@ import {
 import { AppointmentStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
+import { NotificationsService } from '../notifications/notifications.module';
 
 @Injectable()
 export class AppointmentsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   // RN-03: no se permiten dos citas simultáneas en el mismo sillón físico,
   // aunque sean odontólogos distintos. Dos intervalos se solapan si
@@ -47,7 +51,7 @@ export class AppointmentsService {
     }
     await this.assertNoOperatoryOverlap(dto.operatoryId, startsAt, endsAt);
 
-    return this.prisma.appointment.create({
+    const created = await this.prisma.appointment.create({
       data: {
         patientId: dto.patientId,
         dentistId: dto.dentistId,
@@ -58,6 +62,10 @@ export class AppointmentsService {
       },
       include: { patient: true, dentist: true, operatory: true },
     });
+
+    // RF-11: programa los recordatorios 48h/24h de esta cita.
+    await this.notifications.scheduleForAppointment(created.id);
+    return created;
   }
 
   // RF-09: agenda filtrable por rango, sillón y profesional.

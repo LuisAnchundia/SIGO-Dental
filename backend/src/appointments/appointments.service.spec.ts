@@ -32,7 +32,8 @@ describe('AppointmentsService — RN-03', () => {
         create: async () => ({ id: 'nueva' }),
       },
     };
-    const service = new AppointmentsService(prisma as any);
+    const notifications = { scheduleForAppointment: async () => undefined };
+    const service = new AppointmentsService(prisma as any, notifications as any);
     await expect(service.create(baseDto)).resolves.toEqual({ id: 'nueva' });
   });
 

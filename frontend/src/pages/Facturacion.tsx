@@ -242,6 +242,12 @@ function InvoiceRow({ invoice }: { invoice: Invoice }) {
     },
   });
 
+  const authMut = useMutation({
+    mutationFn: async () =>
+      (await api.post(`/invoices/${invoice.id}/authorize`)).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['invoices'] }),
+  });
+
   const STATUS: Record<string, string> = {
     EMITIDA: 'bg-amber-100 text-amber-700',
     PARCIAL: 'bg-blue-100 text-blue-700',
@@ -269,6 +275,21 @@ function InvoiceRow({ invoice }: { invoice: Invoice }) {
             {invoice.status}
           </span>
         </div>
+      </div>
+      <div className="mt-1 text-xs">
+        {invoice.authorizationNumber ? (
+          <span className="font-medium text-green-700">
+            ✓ Autorizada (SRI): {invoice.authorizationNumber.slice(0, 20)}…
+          </span>
+        ) : (
+          <button
+            onClick={() => authMut.mutate()}
+            disabled={authMut.isPending}
+            className="font-semibold text-teal-700 hover:underline disabled:opacity-50"
+          >
+            Timbrar factura (autorizar)
+          </button>
+        )}
       </div>
       {pending > 0.009 && (
         <div className="mt-2 flex items-center gap-2">

@@ -34,3 +34,20 @@ describe('InvoicesService.addPayment', () => {
     expect(r.status).toBe('PARCIAL');
   });
 });
+
+// RF-12: timbrado / autorización fiscal (simulado).
+describe('InvoicesService.authorize', () => {
+  it('genera una clave de acceso de 49 dígitos', async () => {
+    const prisma = {
+      invoice: {
+        findUnique: async () => ({ id: 'i1', authorizationNumber: null }),
+        update: async (args: any) => args.data,
+      },
+    };
+    const service = new InvoicesService(prisma as any);
+    const r: any = await service.authorize('i1');
+    expect(r.accessKey).toHaveLength(49);
+    expect(/^\d{49}$/.test(r.accessKey)).toBe(true);
+    expect(r.authorizedAt).toBeInstanceOf(Date);
+  });
+});

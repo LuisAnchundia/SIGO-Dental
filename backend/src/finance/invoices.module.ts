@@ -182,10 +182,41 @@ export class InvoicesService {
     return invoice;
   }
 
+  // RF-12: autorización/timbrado fiscal. Simulado (genera clave de acceso y
+  // número de autorización); listo para conectar el servicio real del SRI.
+  async authorize(id: string) {
+    const invoice = await this.findOne(id);
+    if (invoice.authorizationNumber) return invoice;
+    const accessKey = Array.from({ length: 49 }, () =>
+      Math.floor(Math.random() * 10),
+    ).join('');
+    return this.prisma.invoice.update({
+      where: { id },
+      data: {
+        accessKey,
+        authorizationNumber: accessKey, // en SRI coinciden en modo offline
+        authorizedAt: new Date(),
+      },
+      include: { items: true, payments: true },
+    });
+  }
+
   async addPayment(id: string, dto: AddPaymentDto) {
     const invoice = await this.findOne(id);
+    // Pasarela de pago simulada: los pagos con tarjeta reciben una referencia
+    // de transacción (listo para Stripe/dLocal reales).
+    const isCard =
+      dto.method === 'TARJETA_CREDITO' || dto.method === 'TARJETA_DEBITO';
+    const transactionRef = isCard
+      ? `txn_sim_${Date.now()}`
+      : undefined;
     await this.prisma.payment.create({
-      data: { invoiceId: id, method: dto.method, amount: dto.amount },
+      data: {
+        invoiceId: id,
+        method: dto.method,
+        amount: dto.amount,
+        transactionRef,
+      },
     });
     const payments = await this.prisma.payment.findMany({
       where: { invoiceId: id },
@@ -233,6 +264,13 @@ class InvoicesController {
   @ApiOperation({ summary: 'Registrar pago (pagos mixtos)' })
   addPayment(@Param('id') id: string, @Body() dto: AddPaymentDto) {
     return this.service.addPayment(id, dto);
+  }
+
+  @Post(':id/authorize')
+  @Roles(Role.ADMIN_TI, Role.RECEPCION)
+  @ApiOperation({ summary: 'Timbrar / autorizar factura (RF-12, simulado SRI)' })
+  authorize(@Param('id') id: string) {
+    return this.service.authorize(id);
   }
 }
 

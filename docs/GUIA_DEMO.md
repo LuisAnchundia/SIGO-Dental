@@ -147,10 +147,12 @@ En **Reportes** muestra:
 | RF-08 Aprobación de presupuesto | Presupuestos → Aprobar |
 | RF-09 Agenda por sillón/profesional | Agenda |
 | RF-10 Estados de cita | Agenda → selector de estado |
-| RF-11 Notificaciones | *Integración externa (ver §6)* |
+| RF-11 Recordatorios 48h/24h | Agenda → Recordatorios (simulado) |
 | RF-12 Facturación + pagos mixtos | Facturación |
+| RF-12 Timbrado fiscal | Facturación → "Timbrar factura" (simulado SRI) |
 | RF-13 Comisiones/honorarios | Reportes → Liquidación |
 | RF-14 Descargo de insumos | Facturar → baja de stock |
+| Almacenamiento de archivos | Expediente → Archivos (Rx/fotos/PDF) |
 | RNF-04 Cifrado TLS/AES | SECURITY.md (infra) |
 | RNF-05 RBAC + MFA + timeout | Login, Seguridad, roles |
 | RNF-06 Auditoría inmutable | Interceptor de auditoría |
@@ -180,19 +182,25 @@ En **Reportes** muestra:
 
 ---
 
-## 6. Qué quedó fuera (y por qué)
+## 6. Integraciones externas — implementadas como simuladas
 
-Son **integraciones con servicios externos** que el propio documento ubica como
-APIs a conectar; requieren cuentas y claves de terceros, por eso se dejan
-preparadas pero no activadas:
+Estas funciones **están implementadas de extremo a extremo en el código** con un
+proveedor **simulado**, listas para conectar las claves reales (solo se cambia
+el proveedor, sin tocar el resto):
 
-- **RF-11 Notificaciones** WhatsApp/SMS/Email (Meta Cloud API / Twilio).
-- **RF-12** Timbrado fiscal real del **SRI** y **pasarelas de pago**
-  (Stripe/dLocal). La factura actual es un comprobante interno.
-- **DICOM/PACS** (visor de radiografías) — el documento lo marca como Fase 2+.
-- Los **RNF de rendimiento** (RNF-01 < 1.5s, RNF-02 uptime, RNF-03 150 usuarios
-  concurrentes) son metas de operación/infraestructura, no funcionalidades;
-  se validarían con pruebas de carga en el ambiente de producción.
+- **RF-11 Notificaciones** 48h/24h: se programan al crear la cita y se procesan
+  por un *scheduler* (cron). El envío real por WhatsApp/SMS (Twilio/Meta) o
+  Email (Resend) se activa con sus claves en `backend/.env`.
+- **RF-12 Timbrado fiscal + pasarela de pago**: la factura se "autoriza"
+  generando clave de acceso de 49 dígitos (simula el SRI) y los pagos con
+  tarjeta reciben una referencia de transacción (simula Stripe/dLocal).
+
+### Fuera de alcance (del propio documento o de infraestructura)
+
+- **Visor DICOM 3D** — el documento lo excluye explícitamente de la Fase 1.
+- **RNF-01/02/03** (tiempo < 1.5s, uptime, 150 concurrentes) y **RNF-04**
+  (TLS 1.3 / AES-256) son metas de **operación/infraestructura**; se validan y
+  configuran en el ambiente de producción (ver `SECURITY.md`).
 
 ---
 
