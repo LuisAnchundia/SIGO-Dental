@@ -30,7 +30,8 @@ model User {
   fullName     String
   role         Role
   isActive     Boolean  @default(true)
-  mfaEnabled   Boolean  @default(false) // base para MFA (RNF-05)
+  mfaEnabled   Boolean  @default(false) // MFA activo (RNF-05)
+  mfaSecret    String?  // secreto TOTP (base32) cuando MFA está configurado
   // Configuración de comisión / honorarios (RF-13)
   commissionType  CommissionType @default(PORCENTAJE)
   commissionValue Decimal        @default(0) @db.Decimal(10, 2)

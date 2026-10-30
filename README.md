@@ -20,7 +20,17 @@ Implementación por fases según el documento de requerimientos (`req.md`):
   Facturación/POS con pagos mixtos (RF-12), inventario con descargo
   automático por receta (RF-14), presupuestos (RF-07/08), comisiones
   (RF-13), cierre de caja ciego (RN-02) y reportes.
-- Fase 4 — UAT, auditoría de seguridad y producción.
+- **Fase 4 — Seguridad, Auditoría y Despliegue** ✅
+  MFA con TOTP (RNF-05), log de auditoría inmutable (RNF-06), helmet +
+  rate limiting (OWASP), pruebas de reglas críticas, Dockerfiles y
+  `SECURITY.md`. Ver [SECURITY.md](SECURITY.md).
+
+### Despliegue (producción)
+
+```bash
+# Define POSTGRES_PASSWORD y JWT_SECRET en el entorno, luego:
+docker compose -f docker-compose.prod.yml up -d --build
+```
 
 ## Arquitectura
 

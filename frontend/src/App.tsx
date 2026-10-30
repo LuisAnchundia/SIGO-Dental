@@ -11,6 +11,7 @@ import { Facturacion } from '@/pages/Facturacion';
 import { Caja } from '@/pages/Caja';
 import { Inventario } from '@/pages/Inventario';
 import { Reportes } from '@/pages/Reportes';
+import { Seguridad } from '@/pages/Seguridad';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const token = useAuthStore((s) => s.token);
@@ -38,6 +39,7 @@ export default function App() {
         <Route path="caja" element={<Caja />} />
         <Route path="inventario" element={<Inventario />} />
         <Route path="reportes" element={<Reportes />} />
+        <Route path="seguridad" element={<Seguridad />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

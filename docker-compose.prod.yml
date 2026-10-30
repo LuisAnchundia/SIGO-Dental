@@ -1,0 +1,48 @@
+# Despliegue de producción (Fase 4).
+# TLS 1.3 (RNF-04) se termina en un balanceador / reverse proxy delante de este stack.
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sigo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-sigo_dental}
+    volumes:
+      - sigo_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sigo}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    volumes:
+      - sigo_redisdata:/data
+
+  backend:
+    build: ./backend
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sigo}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-sigo_dental}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET}
+      JWT_EXPIRES_IN: 8h
+      SOEP_LOCK_HOURS: 24
+      PORT: 3000
+
+  frontend:
+    build: ./frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  sigo_pgdata:
+  sigo_redisdata:
