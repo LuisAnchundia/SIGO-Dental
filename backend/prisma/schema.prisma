@@ -1,0 +1,288 @@
+// Esquema de datos — SIGO-Dental
+// Fase 1 (Core Administrativo y Turnos) + cimientos del core clínico y financiero.
+// Referencias a requerimientos del documento: RF-xx, RNF-xx, RN-xx.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// USUARIOS Y ROLES (RNF-05 RBAC)
+// ---------------------------------------------------------------------------
+
+enum Role {
+  ADMIN_TI // Administrador TI / Sistema
+  RECEPCION // Recepcionista / Cajero
+  ODONTOLOGO // Odontólogo general / especialista
+  ASISTENTE // Asistente dental
+  AUDITOR // Auditor / Contador
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  fullName     String
+  role         Role
+  isActive     Boolean  @default(true)
+  mfaEnabled   Boolean  @default(false) // base para MFA (RNF-05)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relaciones donde el usuario actúa como profesional
+  appointments   Appointment[]   @relation("DentistAppointments")
+  treatmentPlans TreatmentPlan[] @relation("DentistPlans")
+  auditLogs      AuditLog[]
+
+  @@map("users")
+}
+
+// ---------------------------------------------------------------------------
+// PACIENTES (RF-01 Registro unificado, RF-02 Anamnesis y alertas)
+// ---------------------------------------------------------------------------
+
+enum Gender {
+  MASCULINO
+  FEMENINO
+  OTRO
+}
+
+model Patient {
+  id            String    @id @default(uuid())
+  documentId    String    @unique // cédula / identificación
+  firstName     String
+  lastName      String
+  birthDate     DateTime
+  gender        Gender
+  phone         String?
+  email         String?
+  address       String?
+  // Contacto de emergencia
+  emergencyName  String?
+  emergencyPhone String?
+  // Tutor legal (si es menor de edad)
+  guardianName   String?
+  guardianPhone  String?
+  // Seguro / convenio dental
+  insuranceProvider String?
+  insuranceNumber   String?
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  medicalHistory MedicalHistory?
+  appointments   Appointment[]
+  treatmentPlans TreatmentPlan[]
+  invoices       Invoice[]
+
+  @@map("patients")
+}
+
+// RF-02: historial médico general. Las condiciones críticas disparan el badge
+// de alerta de alta visibilidad en la cabecera del expediente.
+model MedicalHistory {
+  id        String  @id @default(uuid())
+  patientId String  @unique
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  systemicDiseases String? // enfermedades sistémicas
+  surgicalHistory  String? // antecedentes quirúrgicos
+  allergies        String? // alergias a fármacos (texto libre)
+  coagulopathies   Boolean @default(false)
+  isAnticoagulated Boolean @default(false)
+  penicillinAllergy Boolean @default(false)
+  // Lista de alertas críticas calculadas/declaradas para el badge (RF-02)
+  criticalAlerts   String[] @default([])
+
+  updatedAt DateTime @updatedAt
+
+  @@map("medical_histories")
+}
+
+// ---------------------------------------------------------------------------
+// AGENDA (RF-09 multirrecinto, RF-10 estados, RN-03 no solapar sillón)
+// ---------------------------------------------------------------------------
+
+// Sillón / consultorio físico
+model Operatory {
+  id        String        @id @default(uuid())
+  name      String        @unique // ej. "Sillón 1"
+  isActive  Boolean       @default(true)
+  appointments Appointment[]
+
+  @@map("operatories")
+}
+
+enum AppointmentStatus {
+  PROGRAMADO
+  CONFIRMADO
+  EN_SALA_ESPERA
+  EN_ATENCION
+  ATENDIDO
+  CANCELADO
+  NO_ASISTIO
+}
+
+model Appointment {
+  id          String            @id @default(uuid())
+  patientId   String
+  patient     Patient           @relation(fields: [patientId], references: [id])
+  dentistId   String
+  dentist     User              @relation("DentistAppointments", fields: [dentistId], references: [id])
+  operatoryId String
+  operatory   Operatory         @relation(fields: [operatoryId], references: [id])
+
+  startsAt DateTime
+  endsAt   DateTime
+  status   AppointmentStatus @default(PROGRAMADO)
+  reason   String?
+  notes    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([operatoryId, startsAt])
+  @@index([dentistId, startsAt])
+  @@map("appointments")
+}
+
+// ---------------------------------------------------------------------------
+// CATÁLOGO CLÍNICO Y TRATAMIENTOS (RF-07, RF-08)
+// ---------------------------------------------------------------------------
+
+model Procedure {
+  id        String   @id @default(uuid())
+  code      String   @unique // ej. "D2150"
+  name      String
+  basePrice Decimal  @db.Decimal(10, 2)
+  labCost   Decimal  @default(0) @db.Decimal(10, 2)
+  isActive  Boolean  @default(true)
+
+  treatmentItems TreatmentItem[]
+
+  @@map("procedures")
+}
+
+enum TreatmentPlanStatus {
+  BORRADOR
+  PRESENTADO
+  APROBADO_TOTAL
+  APROBADO_PARCIAL
+  RECHAZADO
+}
+
+model TreatmentPlan {
+  id        String              @id @default(uuid())
+  patientId String
+  patient   Patient             @relation(fields: [patientId], references: [id])
+  dentistId String
+  dentist   User                @relation("DentistPlans", fields: [dentistId], references: [id])
+  status    TreatmentPlanStatus @default(BORRADOR)
+  notes     String?
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  items TreatmentItem[]
+
+  @@map("treatment_plans")
+}
+
+model TreatmentItem {
+  id          String        @id @default(uuid())
+  planId      String
+  plan        TreatmentPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  procedureId String
+  procedure   Procedure     @relation(fields: [procedureId], references: [id])
+  phase       Int           @default(1) // fase / sesión
+  toothNumber String? // notación FDI / Universal
+  fee         Decimal       @db.Decimal(10, 2)
+  labCost     Decimal       @default(0) @db.Decimal(10, 2)
+  discount    Decimal       @default(0) @db.Decimal(10, 2)
+  isApproved  Boolean       @default(false) // RF-08 aprobación por ítem
+
+  @@map("treatment_items")
+}
+
+// ---------------------------------------------------------------------------
+// FACTURACIÓN Y PAGOS (RF-12 básico)
+// ---------------------------------------------------------------------------
+
+enum InvoiceStatus {
+  EMITIDA
+  PAGADA
+  PARCIAL
+  ANULADA
+}
+
+enum PaymentMethod {
+  EFECTIVO
+  TARJETA_CREDITO
+  TARJETA_DEBITO
+  TRANSFERENCIA
+  SEGURO
+}
+
+model Invoice {
+  id        String        @id @default(uuid())
+  number    String        @unique
+  patientId String
+  patient   Patient       @relation(fields: [patientId], references: [id])
+  status    InvoiceStatus @default(EMITIDA)
+  subtotal  Decimal       @db.Decimal(10, 2)
+  tax       Decimal       @default(0) @db.Decimal(10, 2)
+  total     Decimal       @db.Decimal(10, 2)
+  issuedAt  DateTime      @default(now())
+
+  items    InvoiceItem[]
+  payments Payment[]
+
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id          String  @id @default(uuid())
+  invoiceId   String
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Int     @default(1)
+  unitPrice   Decimal @db.Decimal(10, 2)
+  lineTotal   Decimal @db.Decimal(10, 2)
+
+  @@map("invoice_items")
+}
+
+model Payment {
+  id        String        @id @default(uuid())
+  invoiceId String
+  invoice   Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  method    PaymentMethod
+  amount    Decimal       @db.Decimal(10, 2)
+  paidAt    DateTime      @default(now())
+
+  @@map("payments")
+}
+
+// ---------------------------------------------------------------------------
+// AUDITORÍA (RNF-06 log inmutable de acciones CRUD)
+// ---------------------------------------------------------------------------
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  action     String // CREATE | READ | UPDATE | DELETE | EXPORT
+  entity     String // recurso afectado
+  entityId   String?
+  ipAddress  String?
+  timestamp  DateTime @default(now()) // ISO-8601
+  metadata   Json?
+
+  @@index([entity, timestamp])
+  @@map("audit_logs")
+}
