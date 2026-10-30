@@ -60,11 +60,11 @@ export function Attachments({ patientId }: { patientId: string }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white p-5">
+      <div className="flex flex-wrap items-center gap-3 rounded-card border border-border bg-white p-5">
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          className="rounded-lg border border-border-muted px-3 py-2 text-sm"
         >
           {CATEGORIES.map((c) => (
             <option key={c} value={c}>
@@ -82,13 +82,13 @@ export function Attachments({ patientId }: { patientId: string }) {
           className="text-sm"
         />
         {uploadMut.isPending && (
-          <span className="text-sm text-slate-500">Subiendo…</span>
+          <span className="text-sm text-text-muted">Subiendo…</span>
         )}
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <div className="overflow-hidden rounded-card border border-border bg-white">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+          <thead className="bg-canvas text-left text-text-muted">
             <tr>
               <th className="px-4 py-2 font-medium">Archivo</th>
               <th className="px-4 py-2 font-medium">Categoría</th>
@@ -100,25 +100,25 @@ export function Attachments({ patientId }: { patientId: string }) {
           <tbody className="divide-y divide-slate-100">
             {files.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={5} className="px-4 py-6 text-center text-text-muted">
                   Sin archivos
                 </td>
               </tr>
             ) : (
               files.map((f) => (
                 <tr key={f.id}>
-                  <td className="px-4 py-2 font-medium text-slate-800">
+                  <td className="px-4 py-2 font-medium text-text">
                     {f.originalName}
                   </td>
-                  <td className="px-4 py-2 text-slate-600">{f.category}</td>
-                  <td className="px-4 py-2 text-slate-600">{human(f.size)}</td>
-                  <td className="px-4 py-2 text-slate-500">
+                  <td className="px-4 py-2 text-text-muted">{f.category}</td>
+                  <td className="px-4 py-2 text-text-muted">{human(f.size)}</td>
+                  <td className="px-4 py-2 text-text-muted">
                     {new Date(f.createdAt).toLocaleDateString('es-EC')}
                   </td>
                   <td className="px-4 py-2 text-right">
                     <button
                       onClick={() => download(f)}
-                      className="text-xs font-semibold text-teal-700 hover:underline"
+                      className="text-xs font-semibold text-brand hover:underline"
                     >
                       Descargar
                     </button>

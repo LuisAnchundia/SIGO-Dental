@@ -31,25 +31,25 @@ export function PatientDetail() {
   });
 
   if (isLoading || !patient) {
-    return <p className="text-slate-400">Cargando expediente…</p>;
+    return <p className="text-text-muted">Cargando expediente…</p>;
   }
 
   const alerts = patient.medicalHistory?.criticalAlerts ?? [];
 
   return (
     <div>
-      <Link to="/pacientes" className="text-sm text-teal-700 hover:underline">
+      <Link to="/pacientes" className="text-sm text-brand hover:underline">
         ← Volver a pacientes
       </Link>
 
       {/* Cabecera del expediente con badge de alerta (RF-02) */}
-      <div className="mt-2 mb-4 rounded-2xl bg-white p-5 shadow-sm">
+      <div className="mt-2 mb-4 rounded-card bg-white p-5 shadow-card">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h2 className="text-xl font-bold text-slate-900">
+            <h2 className="text-xl font-bold text-text">
               {patient.firstName} {patient.lastName}
             </h2>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-text-muted">
               {patient.documentId} ·{' '}
               {new Date(patient.birthDate).toLocaleDateString('es-EC')} ·{' '}
               {patient.gender}
@@ -71,15 +71,15 @@ export function PatientDetail() {
       </div>
 
       {/* Pestañas */}
-      <div className="mb-4 flex flex-wrap gap-1 border-b border-slate-200">
+      <div className="mb-4 flex flex-wrap gap-1 border-b border-border">
         {TABS.map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className={`-mb-px border-b-2 px-4 py-2 text-sm font-medium ${
               tab === t
-                ? 'border-teal-600 text-teal-700'
-                : 'border-transparent text-slate-500 hover:text-slate-700'
+                ? 'border-brand text-brand'
+                : 'border-transparent text-text-muted hover:text-text'
             }`}
           >
             {t}
@@ -130,8 +130,8 @@ function Card({
   children: ReactNode;
 }) {
   return (
-    <div className="rounded-2xl bg-white p-5 shadow-sm">
-      <h3 className="mb-2 font-semibold text-slate-800">{title}</h3>
+    <div className="rounded-card bg-white p-5 shadow-card">
+      <h3 className="mb-2 font-semibold text-text">{title}</h3>
       <dl className="space-y-1 text-sm">{children}</dl>
     </div>
   );
@@ -140,8 +140,8 @@ function Card({
 function Row({ label, value }: { label: string; value?: string | null }) {
   return (
     <div className="flex justify-between gap-4">
-      <dt className="text-slate-500">{label}</dt>
-      <dd className="text-slate-800">{value || '—'}</dd>
+      <dt className="text-text-muted">{label}</dt>
+      <dd className="text-text">{value || '—'}</dd>
     </div>
   );
 }

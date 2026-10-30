@@ -39,36 +39,36 @@ export function Caja() {
     },
   });
 
-  if (isLoading) return <p className="text-slate-400">Cargando…</p>;
+  if (isLoading) return <p className="text-text-muted">Cargando…</p>;
 
   return (
     <div className="max-w-lg">
-      <h2 className="text-xl font-bold text-slate-900 mb-4">Caja</h2>
+      <h2 className="text-xl font-bold text-text mb-4">Caja</h2>
 
       {!current ? (
-        <div className="rounded-2xl bg-white p-6 shadow-sm">
-          <h3 className="mb-3 font-semibold text-slate-800">Abrir caja</h3>
+        <div className="rounded-card bg-white p-6 shadow-card">
+          <h3 className="mb-3 font-semibold text-text">Abrir caja</h3>
           <div className="flex items-center gap-2">
             <input
               type="number"
               placeholder="Fondo inicial"
               value={opening}
               onChange={(e) => setOpening(e.target.value)}
-              className="w-40 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              className="w-40 rounded-lg border border-border-muted px-3 py-2 text-sm"
             />
             <button
               onClick={() => openMut.mutate()}
               disabled={!opening || openMut.isPending}
-              className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+              className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
             >
               Abrir
             </button>
           </div>
         </div>
       ) : (
-        <div className="rounded-2xl bg-white p-6 shadow-sm">
-          <h3 className="mb-1 font-semibold text-slate-800">Caja abierta</h3>
-          <p className="text-sm text-slate-500">
+        <div className="rounded-card bg-white p-6 shadow-card">
+          <h3 className="mb-1 font-semibold text-text">Caja abierta</h3>
+          <p className="text-sm text-text-muted">
             Fondo inicial: ${Number(current.openingAmount).toFixed(2)} · desde{' '}
             {new Date(current.openedAt).toLocaleString('es-EC')}
           </p>
@@ -82,7 +82,7 @@ export function Caja() {
               placeholder="Conteo físico de efectivo"
               value={counted}
               onChange={(e) => setCounted(e.target.value)}
-              className="w-56 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              className="w-56 rounded-lg border border-border-muted px-3 py-2 text-sm"
             />
             <button
               onClick={() => closeMut.mutate()}
@@ -96,8 +96,8 @@ export function Caja() {
       )}
 
       {result && (
-        <div className="mt-4 rounded-2xl bg-white p-6 shadow-sm">
-          <h3 className="mb-2 font-semibold text-slate-800">Resultado del cierre</h3>
+        <div className="mt-4 rounded-card bg-white p-6 shadow-card">
+          <h3 className="mb-2 font-semibold text-text">Resultado del cierre</h3>
           <dl className="space-y-1 text-sm">
             <Row label="Contado (físico)" value={result.countedAmount} />
             <Row label="Esperado (teórico)" value={result.expectedAmount} />
@@ -123,8 +123,8 @@ export function Caja() {
 function Row({ label, value }: { label: string; value?: string | null }) {
   return (
     <div className="flex justify-between">
-      <dt className="text-slate-500">{label}</dt>
-      <dd className="text-slate-800">${Number(value ?? 0).toFixed(2)}</dd>
+      <dt className="text-text-muted">{label}</dt>
+      <dd className="text-text">${Number(value ?? 0).toFixed(2)}</dd>
     </div>
   );
 }

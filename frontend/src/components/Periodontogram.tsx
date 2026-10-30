@@ -86,15 +86,15 @@ export function Periodontogram({ patientId }: { patientId: string }) {
 
   return (
     <div>
-      <p className="mb-3 text-sm text-slate-500">
+      <p className="mb-3 text-sm text-text-muted">
         Por cada sitio: profundidad al sondaje <strong>PS</strong> (mm) y margen
         gingival <strong>MG</strong> (negativo = recesión). El <strong>NIC</strong>
         (nivel de inserción clínica = PS − MG) se calcula solo. Más movilidad,
         furca y sangrado (punto rojo) — RF-04.
       </p>
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+      <div className="overflow-x-auto rounded-card border border-border bg-white">
         <table className="min-w-full text-xs">
-          <thead className="bg-slate-50 text-slate-500">
+          <thead className="bg-canvas text-text-muted">
             <tr>
               <th className="px-2 py-2 text-left">Diente</th>
               {SITES.map((s) => (
@@ -111,7 +111,7 @@ export function Periodontogram({ patientId }: { patientId: string }) {
               const tState = teeth[tooth] ?? { mobility: 0, furcation: 0 };
               return (
                 <tr key={tooth}>
-                  <td className="px-2 py-1 font-semibold text-slate-700">
+                  <td className="px-2 py-1 font-semibold text-text">
                     {tooth}
                   </td>
                   {SITES.map((site) => {
@@ -142,7 +142,7 @@ export function Periodontogram({ patientId }: { patientId: string }) {
                             className={`w-10 rounded border px-1 py-0.5 text-center ${
                               st.bleeding
                                 ? 'border-red-400 bg-red-50 text-red-700'
-                                : 'border-slate-300'
+                                : 'border-border-muted'
                             }`}
                           />
                           <input
@@ -160,9 +160,9 @@ export function Periodontogram({ patientId }: { patientId: string }) {
                                 st.bleeding,
                               )
                             }
-                            className="w-10 rounded border border-slate-200 px-1 py-0.5 text-center text-slate-500"
+                            className="w-10 rounded border border-border px-1 py-0.5 text-center text-text-muted"
                           />
-                          <span className="text-[10px] font-semibold text-slate-500">
+                          <span className="text-[10px] font-semibold text-text-muted">
                             NIC {nic}
                           </span>
                           <button
@@ -185,7 +185,7 @@ export function Periodontogram({ patientId }: { patientId: string }) {
                       onChange={(e) =>
                         saveTooth(tooth, Number(e.target.value), tState.furcation)
                       }
-                      className="rounded border border-slate-300 px-1 py-0.5"
+                      className="rounded border border-border-muted px-1 py-0.5"
                     >
                       {[0, 1, 2, 3].map((n) => (
                         <option key={n} value={n}>
@@ -200,7 +200,7 @@ export function Periodontogram({ patientId }: { patientId: string }) {
                       onChange={(e) =>
                         saveTooth(tooth, tState.mobility, Number(e.target.value))
                       }
-                      className="rounded border border-slate-300 px-1 py-0.5"
+                      className="rounded border border-border-muted px-1 py-0.5"
                     >
                       {[0, 1, 2, 3].map((n) => (
                         <option key={n} value={n}>

@@ -38,15 +38,15 @@ export function Seguridad() {
 
   return (
     <div className="max-w-lg">
-      <h2 className="text-xl font-bold text-slate-900 mb-4">Seguridad</h2>
+      <h2 className="text-xl font-bold text-text mb-4">Seguridad</h2>
 
-      <div className="rounded-2xl bg-white p-6 shadow-sm space-y-4">
+      <div className="rounded-card bg-white p-6 shadow-card space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-semibold text-slate-800">
+            <h3 className="font-semibold text-text">
               Autenticación de dos factores (MFA)
             </h3>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-text-muted">
               Requerida para expedientes clínicos e información financiera (RNF-05).
             </p>
           </div>
@@ -54,7 +54,7 @@ export function Seguridad() {
             className={`rounded-full px-3 py-1 text-xs font-semibold ${
               enabled
                 ? 'bg-green-100 text-green-700'
-                : 'bg-slate-100 text-slate-600'
+                : 'bg-surface-muted text-text-muted'
             }`}
           >
             {enabled ? 'Activo' : 'Inactivo'}
@@ -64,7 +64,7 @@ export function Seguridad() {
         {!enabled && !qr && (
           <button
             onClick={setupMfa}
-            className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-700"
+            className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-active"
           >
             Activar MFA
           </button>
@@ -72,14 +72,14 @@ export function Seguridad() {
 
         {qr && (
           <div className="space-y-3">
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-text-muted">
               Escanee el código con Google Authenticator o similar, e ingrese el
               código de 6 dígitos.
             </p>
             <img
               src={qr}
               alt="Código QR MFA"
-              className="h-44 w-44 rounded-lg border border-slate-200"
+              className="h-44 w-44 rounded-lg border border-border"
             />
             <div className="flex items-center gap-2">
               <input
@@ -87,7 +87,7 @@ export function Seguridad() {
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="000000"
-                className="w-32 rounded-lg border border-slate-300 px-3 py-2 text-sm tracking-widest"
+                className="w-32 rounded-lg border border-border-muted px-3 py-2 text-sm tracking-widest"
               />
               <button
                 onClick={verify}
@@ -102,13 +102,13 @@ export function Seguridad() {
         {enabled && (
           <button
             onClick={disable}
-            className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200"
+            className="rounded-lg bg-surface-muted px-4 py-2 text-sm font-medium text-text hover:bg-border"
           >
             Desactivar MFA
           </button>
         )}
 
-        {msg && <p className="text-sm text-teal-700">{msg}</p>}
+        {msg && <p className="text-sm text-brand">{msg}</p>}
       </div>
     </div>
   );

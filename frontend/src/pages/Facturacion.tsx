@@ -87,14 +87,14 @@ export function Facturacion() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-slate-900 mb-4">Facturación</h2>
+      <h2 className="text-xl font-bold text-text mb-4">Facturación</h2>
 
       <form
         onSubmit={(e) => {
           e.preventDefault();
           createMut.mutate();
         }}
-        className="mb-6 rounded-2xl bg-white p-6 shadow-sm space-y-4"
+        className="mb-6 rounded-card bg-white p-6 shadow-card space-y-4"
       >
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <label className="block">
@@ -147,7 +147,7 @@ export function Facturacion() {
 
         {lines.length > 0 && (
           <table className="w-full text-sm">
-            <thead className="text-left text-slate-500">
+            <thead className="text-left text-text-muted">
               <tr>
                 <th className="py-1">Concepto</th>
                 <th className="py-1 w-20">Cant.</th>
@@ -174,7 +174,7 @@ export function Facturacion() {
                           ),
                         )
                       }
-                      className="w-16 rounded border border-slate-300 px-2 py-1"
+                      className="w-16 rounded border border-border-muted px-2 py-1"
                     />
                   </td>
                   <td>${l.unitPrice.toFixed(2)}</td>
@@ -197,14 +197,14 @@ export function Facturacion() {
         )}
 
         <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold text-slate-700">
+          <span className="text-sm font-semibold text-text">
             Subtotal: ${subtotal.toFixed(2)}
           </span>
           {error && <span className="text-sm text-red-600">{error}</span>}
           <button
             type="submit"
             disabled={createMut.isPending || lines.length === 0 || !patientId}
-            className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-700 disabled:opacity-50"
+            className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-active disabled:opacity-50"
           >
             Emitir factura
           </button>
@@ -256,17 +256,17 @@ function InvoiceRow({ invoice }: { invoice: Invoice }) {
   };
 
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-sm">
+    <div className="rounded-card bg-white p-4 shadow-card">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <span className="font-semibold text-slate-800">{invoice.number}</span>
-          <span className="ml-2 text-sm text-slate-500">
+          <span className="font-semibold text-text">{invoice.number}</span>
+          <span className="ml-2 text-sm text-text-muted">
             {invoice.patient?.firstName} {invoice.patient?.lastName}
           </span>
         </div>
         <div className="flex items-center gap-3 text-sm">
           <span>Total: ${Number(invoice.total).toFixed(2)}</span>
-          <span className="text-slate-500">
+          <span className="text-text-muted">
             Pagado: ${paid.toFixed(2)}
           </span>
           <span
@@ -285,7 +285,7 @@ function InvoiceRow({ invoice }: { invoice: Invoice }) {
           <button
             onClick={() => authMut.mutate()}
             disabled={authMut.isPending}
-            className="font-semibold text-teal-700 hover:underline disabled:opacity-50"
+            className="font-semibold text-brand hover:underline disabled:opacity-50"
           >
             Timbrar factura (autorizar)
           </button>
@@ -296,7 +296,7 @@ function InvoiceRow({ invoice }: { invoice: Invoice }) {
           <select
             value={method}
             onChange={(e) => setMethod(e.target.value as PaymentMethod)}
-            className="rounded border border-slate-300 px-2 py-1 text-sm"
+            className="rounded border border-border-muted px-2 py-1 text-sm"
           >
             {METHODS.map((m) => (
               <option key={m} value={m}>
@@ -309,7 +309,7 @@ function InvoiceRow({ invoice }: { invoice: Invoice }) {
             placeholder={`Pendiente ${pending.toFixed(2)}`}
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-32 rounded border border-slate-300 px-2 py-1 text-sm"
+            className="w-32 rounded border border-border-muted px-2 py-1 text-sm"
           />
           <button
             onClick={() => payMut.mutate()}
@@ -325,5 +325,5 @@ function InvoiceRow({ invoice }: { invoice: Invoice }) {
 }
 
 const inputCls =
-  'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none';
-const labelCls = 'mb-1 block text-sm font-medium text-slate-700';
+  'w-full rounded-lg border border-border-muted px-3 py-2 text-sm focus:border-brand focus:outline-none';
+const labelCls = 'mb-1 block text-sm font-medium text-text';

@@ -44,7 +44,7 @@ function SignaturePad({
       onPointerMove={move}
       onPointerUp={end}
       onPointerLeave={end}
-      className="touch-none rounded-lg border border-slate-300 bg-white"
+      className="touch-none rounded-lg border border-border-muted bg-white"
     />
   );
 }
@@ -97,9 +97,9 @@ export function Consents({ patientId }: { patientId: string }) {
           e.preventDefault();
           mut.mutate();
         }}
-        className="rounded-xl border border-slate-200 bg-white p-5 space-y-3"
+        className="rounded-card border border-border bg-white p-5 space-y-3"
       >
-        <h3 className="font-semibold text-slate-800">
+        <h3 className="font-semibold text-text">
           Nuevo consentimiento informado
         </h3>
         <input
@@ -107,7 +107,7 @@ export function Consents({ patientId }: { patientId: string }) {
           placeholder="Título (ej. Consentimiento para extracción)"
           value={form.title}
           onChange={(e) => setForm({ ...form, title: e.target.value })}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
+          className="w-full rounded-lg border border-border-muted px-3 py-2 text-sm focus:border-brand focus:outline-none"
         />
         <textarea
           required
@@ -115,7 +115,7 @@ export function Consents({ patientId }: { patientId: string }) {
           placeholder="Texto legal del consentimiento…"
           value={form.body}
           onChange={(e) => setForm({ ...form, body: e.target.value })}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
+          className="w-full rounded-lg border border-border-muted px-3 py-2 text-sm focus:border-brand focus:outline-none"
         />
         <div className="flex flex-wrap items-center gap-3">
           <select
@@ -123,7 +123,7 @@ export function Consents({ patientId }: { patientId: string }) {
             onChange={(e) =>
               setForm({ ...form, method: e.target.value as typeof form.method })
             }
-            className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-lg border border-border-muted px-3 py-2 text-sm"
           >
             <option value="FIRMA_BIOMETRICA">Firma biométrica</option>
             <option value="OTP">Código OTP</option>
@@ -134,20 +134,20 @@ export function Consents({ patientId }: { patientId: string }) {
             onChange={(e) =>
               setForm({ ...form, patientSignerName: e.target.value })
             }
-            className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-lg border border-border-muted px-3 py-2 text-sm"
           />
         </div>
 
         {form.method === 'FIRMA_BIOMETRICA' && (
           <div>
-            <span className="mb-1 block text-sm font-medium text-slate-700">
+            <span className="mb-1 block text-sm font-medium text-text">
               Firma del paciente
             </span>
             <SignaturePad canvasRef={canvasRef} />
             <button
               type="button"
               onClick={clearSignature}
-              className="mt-1 block text-xs text-slate-500 hover:underline"
+              className="mt-1 block text-xs text-text-muted hover:underline"
             >
               Limpiar firma
             </button>
@@ -157,7 +157,7 @@ export function Consents({ patientId }: { patientId: string }) {
         <button
           type="submit"
           disabled={mut.isPending}
-          className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-700 disabled:opacity-60"
+          className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-active disabled:opacity-60"
         >
           {mut.isPending ? 'Guardando…' : 'Registrar consentimiento'}
         </button>
@@ -165,15 +165,15 @@ export function Consents({ patientId }: { patientId: string }) {
 
       <div className="space-y-3">
         {consents.length === 0 && (
-          <p className="text-sm text-slate-400">Sin consentimientos.</p>
+          <p className="text-sm text-text-muted">Sin consentimientos.</p>
         )}
         {consents.map((c) => (
           <div
             key={c.id}
-            className="rounded-xl border border-slate-200 bg-white p-4"
+            className="rounded-card border border-border bg-white p-4"
           >
             <div className="flex items-center justify-between">
-              <h4 className="font-semibold text-slate-800">{c.title}</h4>
+              <h4 className="font-semibold text-text">{c.title}</h4>
               <span
                 className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
                   c.signedAt
@@ -184,8 +184,8 @@ export function Consents({ patientId }: { patientId: string }) {
                 {c.signedAt ? 'Firmado' : 'Pendiente'}
               </span>
             </div>
-            <p className="mt-1 text-sm text-slate-600">{c.body}</p>
-            <div className="mt-2 flex items-center gap-4 text-xs text-slate-500">
+            <p className="mt-1 text-sm text-text-muted">{c.body}</p>
+            <div className="mt-2 flex items-center gap-4 text-xs text-text-muted">
               <span>Método: {c.method}</span>
               {c.patientSignerName && <span>Firma: {c.patientSignerName}</span>}
               <span>{new Date(c.createdAt).toLocaleString('es-EC')}</span>
@@ -194,7 +194,7 @@ export function Consents({ patientId }: { patientId: string }) {
               <img
                 src={c.signatureDataUrl}
                 alt="Firma"
-                className="mt-2 h-16 rounded border border-slate-200 bg-white"
+                className="mt-2 h-16 rounded border border-border bg-white"
               />
             )}
           </div>

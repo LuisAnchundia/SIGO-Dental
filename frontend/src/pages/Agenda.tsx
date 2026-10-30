@@ -21,10 +21,10 @@ const STATUSES: AppointmentStatus[] = [
 ];
 
 const STATUS_STYLE: Record<AppointmentStatus, string> = {
-  PROGRAMADO: 'bg-slate-100 text-slate-700',
+  PROGRAMADO: 'bg-surface-muted text-text',
   CONFIRMADO: 'bg-blue-100 text-blue-700',
   EN_SALA_ESPERA: 'bg-amber-100 text-amber-700',
-  EN_ATENCION: 'bg-teal-100 text-teal-700',
+  EN_ATENCION: 'bg-brand-container text-brand-on-container',
   ATENDIDO: 'bg-green-100 text-green-700',
   CANCELADO: 'bg-red-100 text-red-700',
   NO_ASISTIO: 'bg-red-100 text-red-700',
@@ -109,14 +109,14 @@ export function Agenda() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-slate-900 mb-4">Agenda de citas</h2>
+      <h2 className="text-xl font-bold text-text mb-4">Agenda de citas</h2>
 
       <form
         onSubmit={(e) => {
           e.preventDefault();
           createMut.mutate();
         }}
-        className="mb-6 rounded-2xl bg-white p-6 shadow-sm"
+        className="mb-6 rounded-card bg-white p-6 shadow-card"
       >
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <label className="block">
@@ -200,15 +200,15 @@ export function Agenda() {
         <button
           type="submit"
           disabled={createMut.isPending}
-          className="mt-4 rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-700 disabled:opacity-60"
+          className="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-active disabled:opacity-60"
         >
           {createMut.isPending ? 'Agendando…' : 'Agendar cita'}
         </button>
       </form>
 
-      <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+      <div className="overflow-hidden rounded-card bg-white shadow-card">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+          <thead className="bg-canvas text-left text-text-muted">
             <tr>
               <th className="px-4 py-3 font-medium">Horario</th>
               <th className="px-4 py-3 font-medium">Paciente</th>
@@ -220,23 +220,23 @@ export function Agenda() {
           <tbody className="divide-y divide-slate-100">
             {appointments.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={5} className="px-4 py-6 text-center text-text-muted">
                   Sin citas agendadas
                 </td>
               </tr>
             ) : (
               appointments.map((a) => (
-                <tr key={a.id} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 text-slate-600">
+                <tr key={a.id} className="hover:bg-canvas">
+                  <td className="px-4 py-3 text-text-muted">
                     {fmt(a.startsAt)} – {fmt(a.endsAt)}
                   </td>
-                  <td className="px-4 py-3 font-medium text-slate-800">
+                  <td className="px-4 py-3 font-medium text-text">
                     {a.patient.firstName} {a.patient.lastName}
                   </td>
-                  <td className="px-4 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-text-muted">
                     {a.dentist.fullName}
                   </td>
-                  <td className="px-4 py-3 text-slate-600">{a.operatory.name}</td>
+                  <td className="px-4 py-3 text-text-muted">{a.operatory.name}</td>
                   <td className="px-4 py-3">
                     <select
                       value={a.status}
@@ -265,7 +265,7 @@ export function Agenda() {
       {/* Recordatorios automáticos (RF-11) */}
       <div className="mt-6">
         <div className="mb-2 flex items-center justify-between">
-          <h3 className="font-semibold text-slate-800">
+          <h3 className="font-semibold text-text">
             Recordatorios automáticos (48h / 24h)
           </h3>
           <button
@@ -276,9 +276,9 @@ export function Agenda() {
             Procesar ahora
           </button>
         </div>
-        <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+        <div className="overflow-hidden rounded-card bg-white shadow-card">
           <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-left text-slate-500">
+            <thead className="bg-canvas text-left text-text-muted">
               <tr>
                 <th className="px-4 py-2 font-medium">Canal</th>
                 <th className="px-4 py-2 font-medium">Destino</th>
@@ -289,16 +289,16 @@ export function Agenda() {
             <tbody className="divide-y divide-slate-100">
               {notifs.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-4 py-4 text-center text-slate-400">
+                  <td colSpan={4} className="px-4 py-4 text-center text-text-muted">
                     Sin recordatorios. Crea una cita para programarlos.
                   </td>
                 </tr>
               ) : (
                 notifs.slice(0, 12).map((n) => (
                   <tr key={n.id}>
-                    <td className="px-4 py-2 text-slate-600">{n.channel}</td>
-                    <td className="px-4 py-2 text-slate-600">{n.to}</td>
-                    <td className="px-4 py-2 text-slate-500">
+                    <td className="px-4 py-2 text-text-muted">{n.channel}</td>
+                    <td className="px-4 py-2 text-text-muted">{n.to}</td>
+                    <td className="px-4 py-2 text-text-muted">
                       {new Date(n.scheduledFor).toLocaleString('es-EC')}
                     </td>
                     <td className="px-4 py-2">
@@ -320,7 +320,7 @@ export function Agenda() {
             </tbody>
           </table>
         </div>
-        <p className="mt-1 text-xs text-slate-400">
+        <p className="mt-1 text-xs text-text-muted">
           Envío simulado (listo para WhatsApp/SMS/Email reales con claves de
           Twilio / Meta / Resend).
         </p>
@@ -330,5 +330,5 @@ export function Agenda() {
 }
 
 const inputCls =
-  'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none';
-const labelCls = 'mb-1 block text-sm font-medium text-slate-700';
+  'w-full rounded-lg border border-border-muted px-3 py-2 text-sm focus:border-brand focus:outline-none';
+const labelCls = 'mb-1 block text-sm font-medium text-text';

@@ -17,17 +17,19 @@ interface CondMeta {
 }
 
 // Catálogo visual estandarizado del documento (RF-03).
+// Colores del sistema de diseño "Clinical Precision": cada condición usa el
+// tono semántico fijo definido para patología/tratamiento dental.
 const CONDITIONS: CondMeta[] = [
   { key: 'SANO', label: 'Sano (borrar)', color: '#ffffff', whole: false },
-  { key: 'CARIES', label: 'Caries', color: '#ef4444', whole: false },
-  { key: 'RESTAURACION', label: 'Restauración', color: '#3b82f6', whole: false },
-  { key: 'ENDODONCIA', label: 'Endodoncia', color: '#a855f7', whole: false },
-  { key: 'SELLANTE', label: 'Sellante', color: '#22c55e', whole: false },
-  { key: 'CORONA', label: 'Corona', color: '#f59e0b', whole: true },
-  { key: 'PROTESIS_FIJA', label: 'Prót. fija', color: '#14b8a6', whole: true },
-  { key: 'PROTESIS_REMOVIBLE', label: 'Prót. removible', color: '#06b6d4', whole: true },
-  { key: 'IMPLANTE', label: 'Implante', color: '#64748b', whole: true },
-  { key: 'EXODONCIA', label: 'Exodoncia', color: '#111827', whole: true },
+  { key: 'CARIES', label: 'Caries', color: '#dc2626', whole: false },
+  { key: 'RESTAURACION', label: 'Restauración', color: '#2563eb', whole: false },
+  { key: 'ENDODONCIA', label: 'Endodoncia', color: '#9333ea', whole: false },
+  { key: 'SELLANTE', label: 'Sellante', color: '#0d9488', whole: false },
+  { key: 'CORONA', label: 'Corona', color: '#d97706', whole: true },
+  { key: 'PROTESIS_FIJA', label: 'Prót. fija', color: '#06b6d4', whole: true },
+  { key: 'PROTESIS_REMOVIBLE', label: 'Prót. removible', color: '#67e8f9', whole: true },
+  { key: 'IMPLANTE', label: 'Implante', color: '#334155', whole: true },
+  { key: 'EXODONCIA', label: 'Exodoncia', color: '#0f172a', whole: true },
 ];
 
 const COLOR: Record<ToothCondition, string> = Object.fromEntries(
@@ -59,7 +61,7 @@ function Tooth({
   const generalColor = general ? COLOR[general] : undefined;
   return (
     <div className="flex flex-col items-center gap-1">
-      <span className="text-[10px] font-semibold text-slate-500">{label}</span>
+      <span className="text-[10px] font-semibold text-text-muted">{label}</span>
       <div
         className="relative grid grid-cols-3 grid-rows-3 rounded-sm"
         style={{
@@ -74,7 +76,7 @@ function Tooth({
               key={i}
               onClick={() => onApply(surface)}
               title={surface}
-              className="border border-slate-300 hover:brightness-95"
+              className="border border-border-muted hover:brightness-95"
               style={{
                 backgroundColor: surfaces[surface]
                   ? COLOR[surfaces[surface]]
@@ -86,12 +88,12 @@ function Tooth({
           ),
         )}
         {general === 'EXODONCIA' && (
-          <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-lg font-bold text-slate-900">
+          <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-lg font-bold text-text">
             ✕
           </span>
         )}
         {general === 'IMPLANTE' && (
-          <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-700">
+          <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-xs font-bold text-text">
             ⬡
           </span>
         )}
@@ -199,12 +201,12 @@ export function Odontogram({ patientId }: { patientId: string }) {
             onClick={() => setTool(c.key)}
             className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium ${
               tool === c.key
-                ? 'border-teal-500 bg-teal-50 text-teal-800'
-                : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                ? 'border-brand bg-brand-container text-brand'
+                : 'border-border text-text-muted hover:bg-canvas'
             }`}
           >
             <span
-              className="inline-block h-3 w-3 rounded-sm border border-slate-300"
+              className="inline-block h-3 w-3 rounded-sm border border-border-muted"
               style={{ backgroundColor: c.color }}
             />
             {c.label}
@@ -212,13 +214,13 @@ export function Odontogram({ patientId }: { patientId: string }) {
         ))}
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
+      <div className="rounded-card border border-border bg-white p-4 space-y-3">
         {renderRow(upper)}
-        <div className="border-t border-dashed border-slate-200" />
+        <div className="border-t border-dashed border-border" />
         {renderRow(lower)}
       </div>
 
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-text-muted">
         Herramienta activa: <strong>{META[tool].label}</strong>. Clic en una
         superficie para marcarla. Las condiciones de todo el diente (corona,
         prótesis, implante, exodoncia) se aplican al diente completo.
@@ -237,13 +239,13 @@ function Toggle({
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="inline-flex rounded-lg border border-slate-200 p-0.5">
+    <div className="inline-flex rounded-lg border border-border p-0.5">
       {options.map(([val, label]) => (
         <button
           key={val}
           onClick={() => onChange(val)}
           className={`rounded-md px-3 py-1 text-xs font-medium ${
-            value === val ? 'bg-slate-900 text-white' : 'text-slate-600'
+            value === val ? 'bg-slate-900 text-white' : 'text-text-muted'
           }`}
         >
           {label}

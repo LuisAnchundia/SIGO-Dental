@@ -26,23 +26,23 @@ export function Reportes() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-bold text-slate-900">Reportes</h2>
+      <h2 className="text-xl font-bold text-text">Reportes</h2>
 
-      <section className="rounded-2xl bg-white p-6 shadow-sm">
-        <h3 className="mb-3 font-semibold text-slate-800">Corte de caja</h3>
+      <section className="rounded-card bg-white p-6 shadow-card">
+        <h3 className="mb-3 font-semibold text-text">Corte de caja</h3>
         {cash && (
           <div className="flex flex-wrap gap-6 text-sm">
             <div>
-              <p className="text-slate-500">Total recaudado</p>
-              <p className="text-2xl font-bold text-slate-900">
+              <p className="text-text-muted">Total recaudado</p>
+              <p className="text-2xl font-bold text-text">
                 ${cash.total.toFixed(2)}
               </p>
             </div>
             <div className="flex flex-wrap gap-4">
               {Object.entries(cash.byMethod).map(([m, v]) => (
                 <div key={m}>
-                  <p className="text-slate-500">{m}</p>
-                  <p className="font-semibold text-slate-800">
+                  <p className="text-text-muted">{m}</p>
+                  <p className="font-semibold text-text">
                     ${v.toFixed(2)}
                   </p>
                 </div>
@@ -52,12 +52,12 @@ export function Reportes() {
         )}
       </section>
 
-      <section className="rounded-2xl bg-white p-6 shadow-sm">
-        <h3 className="mb-3 font-semibold text-slate-800">
+      <section className="rounded-card bg-white p-6 shadow-card">
+        <h3 className="mb-3 font-semibold text-text">
           Liquidación de honorarios (RF-13)
         </h3>
         <table className="w-full text-sm">
-          <thead className="text-left text-slate-500">
+          <thead className="text-left text-text-muted">
             <tr>
               <th className="py-2">Profesional</th>
               <th className="py-2">Tipo</th>
@@ -68,21 +68,21 @@ export function Reportes() {
           <tbody className="divide-y divide-slate-100">
             {commissions.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-4 text-center text-slate-400">
+                <td colSpan={4} className="py-4 text-center text-text-muted">
                   Sin datos en el período
                 </td>
               </tr>
             ) : (
               commissions.map((c) => (
                 <tr key={c.dentistId}>
-                  <td className="py-2 font-medium text-slate-800">
+                  <td className="py-2 font-medium text-text">
                     {c.dentist}
                   </td>
-                  <td className="py-2 text-slate-600">
+                  <td className="py-2 text-text-muted">
                     {c.type} ({c.value})
                   </td>
                   <td className="py-2">${c.base.toFixed(2)}</td>
-                  <td className="py-2 font-semibold text-teal-700">
+                  <td className="py-2 font-semibold text-brand">
                     ${c.commission.toFixed(2)}
                   </td>
                 </tr>
@@ -92,10 +92,10 @@ export function Reportes() {
         </table>
       </section>
 
-      <section className="rounded-2xl bg-white p-6 shadow-sm">
-        <h3 className="mb-3 font-semibold text-slate-800">Inventario</h3>
+      <section className="rounded-card bg-white p-6 shadow-card">
+        <h3 className="mb-3 font-semibold text-text">Inventario</h3>
         <table className="w-full text-sm">
-          <thead className="text-left text-slate-500">
+          <thead className="text-left text-text-muted">
             <tr>
               <th className="py-2">Insumo</th>
               <th className="py-2">Stock</th>
@@ -106,11 +106,11 @@ export function Reportes() {
           <tbody className="divide-y divide-slate-100">
             {inventory.map((s) => (
               <tr key={s.id}>
-                <td className="py-2 font-medium text-slate-800">{s.name}</td>
+                <td className="py-2 font-medium text-text">{s.name}</td>
                 <td className="py-2">
                   {s.stock} {s.unit}
                 </td>
-                <td className="py-2 text-slate-500">{s.minStock}</td>
+                <td className="py-2 text-text-muted">{s.minStock}</td>
                 <td className="py-2">
                   {s.lowStock ? (
                     <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">

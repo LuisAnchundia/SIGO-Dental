@@ -51,9 +51,9 @@ export function SoepNotes({ patientId }: { patientId: string }) {
           e.preventDefault();
           mut.mutate();
         }}
-        className="rounded-xl border border-slate-200 bg-white p-5 space-y-3"
+        className="rounded-card border border-border bg-white p-5 space-y-3"
       >
-        <h3 className="font-semibold text-slate-800">
+        <h3 className="font-semibold text-text">
           {editId ? 'Editar nota' : 'Nueva nota de evolución (SOEP)'}
         </h3>
         {(
@@ -65,7 +65,7 @@ export function SoepNotes({ patientId }: { patientId: string }) {
           ] as const
         ).map(([key, label]) => (
           <label key={key} className="block">
-            <span className="mb-1 block text-sm font-medium text-slate-700">
+            <span className="mb-1 block text-sm font-medium text-text">
               {label}
             </span>
             <textarea
@@ -73,7 +73,7 @@ export function SoepNotes({ patientId }: { patientId: string }) {
               rows={2}
               value={form[key]}
               onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
+              className="w-full rounded-lg border border-border-muted px-3 py-2 text-sm focus:border-brand focus:outline-none"
             />
           </label>
         ))}
@@ -82,7 +82,7 @@ export function SoepNotes({ patientId }: { patientId: string }) {
           <button
             type="submit"
             disabled={mut.isPending}
-            className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-700 disabled:opacity-60"
+            className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-active disabled:opacity-60"
           >
             {editId ? 'Guardar cambios' : 'Firmar y guardar'}
           </button>
@@ -93,7 +93,7 @@ export function SoepNotes({ patientId }: { patientId: string }) {
                 setEditId(null);
                 setForm(EMPTY);
               }}
-              className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700"
+              className="rounded-lg bg-surface-muted px-4 py-2 text-sm font-medium text-text"
             >
               Cancelar
             </button>
@@ -103,28 +103,28 @@ export function SoepNotes({ patientId }: { patientId: string }) {
 
       <div className="space-y-3">
         {notes.length === 0 && (
-          <p className="text-sm text-slate-400">Sin notas de evolución.</p>
+          <p className="text-sm text-text-muted">Sin notas de evolución.</p>
         )}
         {notes.map((n) => {
           const locked = isLocked(n);
           return (
             <div
               key={n.id}
-              className="rounded-xl border border-slate-200 bg-white p-4"
+              className="rounded-card border border-border bg-white p-4"
             >
               <div className="mb-2 flex items-center justify-between">
-                <div className="text-xs text-slate-500">
+                <div className="text-xs text-text-muted">
                   {new Date(n.createdAt).toLocaleString('es-EC')} ·{' '}
                   {n.author.fullName}
                 </div>
                 {locked ? (
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
+                  <span className="rounded-full bg-surface-muted px-2 py-0.5 text-xs font-semibold text-text-muted">
                     🔒 Bloqueada (inmutable)
                   </span>
                 ) : (
                   <button
                     onClick={() => startEdit(n)}
-                    className="text-xs font-semibold text-teal-700 hover:underline"
+                    className="text-xs font-semibold text-brand hover:underline"
                   >
                     Editar
                   </button>
@@ -147,8 +147,8 @@ export function SoepNotes({ patientId }: { patientId: string }) {
 function Item({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <span className="font-semibold text-slate-500">{label}:</span>{' '}
-      <span className="text-slate-700">{value}</span>
+      <span className="font-semibold text-text-muted">{label}:</span>{' '}
+      <span className="text-text">{value}</span>
     </div>
   );
 }

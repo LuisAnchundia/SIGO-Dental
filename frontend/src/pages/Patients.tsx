@@ -98,10 +98,10 @@ export function Patients() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-slate-900">Pacientes</h2>
+        <h2 className="text-xl font-bold text-text">Pacientes</h2>
         <button
           onClick={() => setShowForm((s) => !s)}
-          className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-700"
+          className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-active"
         >
           {showForm ? 'Cerrar' : 'Nuevo paciente'}
         </button>
@@ -113,7 +113,7 @@ export function Patients() {
             e.preventDefault();
             createMut.mutate(form);
           }}
-          className="mb-6 rounded-2xl bg-white p-6 shadow-sm space-y-4"
+          className="mb-6 rounded-card bg-white p-6 shadow-card space-y-4"
         >
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <Field label="Identificación">
@@ -184,7 +184,7 @@ export function Patients() {
             </Field>
           </div>
 
-          <div className="flex flex-wrap gap-4 text-sm text-slate-700">
+          <div className="flex flex-wrap gap-4 text-sm text-text">
             <Check
               label="Alergia a penicilina"
               checked={form.penicillinAllergy}
@@ -206,7 +206,7 @@ export function Patients() {
           <button
             type="submit"
             disabled={createMut.isPending}
-            className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-700 disabled:opacity-60"
+            className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-active disabled:opacity-60"
           >
             {createMut.isPending ? 'Guardando…' : 'Guardar paciente'}
           </button>
@@ -217,12 +217,12 @@ export function Patients() {
         placeholder="Buscar por nombre o identificación…"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="mb-4 w-full max-w-md rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
+        className="mb-4 w-full max-w-md rounded-lg border border-border-muted px-3 py-2 text-sm focus:border-brand focus:outline-none"
       />
 
-      <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+      <div className="overflow-hidden rounded-card bg-white shadow-card">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+          <thead className="bg-canvas text-left text-text-muted">
             <tr>
               <th className="px-4 py-3 font-medium">Identificación</th>
               <th className="px-4 py-3 font-medium">Paciente</th>
@@ -232,30 +232,30 @@ export function Patients() {
           <tbody className="divide-y divide-slate-100">
             {isLoading ? (
               <tr>
-                <td colSpan={3} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={3} className="px-4 py-6 text-center text-text-muted">
                   Cargando…
                 </td>
               </tr>
             ) : patients.length === 0 ? (
               <tr>
-                <td colSpan={3} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={3} className="px-4 py-6 text-center text-text-muted">
                   Sin pacientes
                 </td>
               </tr>
             ) : (
               patients.map((p) => (
-                <tr key={p.id} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 text-slate-600">{p.documentId}</td>
+                <tr key={p.id} className="hover:bg-canvas">
+                  <td className="px-4 py-3 text-text-muted">{p.documentId}</td>
                   <td className="px-4 py-3">
                     <Link
                       to={`/pacientes/${p.id}`}
-                      className="font-medium text-teal-700 hover:underline"
+                      className="font-medium text-brand hover:underline"
                     >
                       {p.firstName} {p.lastName}
                     </Link>
                     <AlertBadge alerts={p.medicalHistory?.criticalAlerts ?? []} />
                   </td>
-                  <td className="px-4 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-text-muted">
                     {p.phone ?? '—'}
                     {p.email ? ` · ${p.email}` : ''}
                   </td>
@@ -270,7 +270,7 @@ export function Patients() {
 }
 
 const inputCls =
-  'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none';
+  'w-full rounded-lg border border-border-muted px-3 py-2 text-sm focus:border-brand focus:outline-none';
 
 function Field({
   label,
@@ -281,7 +281,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-sm font-medium text-slate-700">
+      <span className="mb-1 block text-sm font-medium text-text">
         {label}
       </span>
       {children}
@@ -304,7 +304,7 @@ function Check({
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="h-4 w-4 rounded border-slate-300 text-teal-600"
+        className="h-4 w-4 rounded border-border-muted text-brand"
       />
       {label}
     </label>

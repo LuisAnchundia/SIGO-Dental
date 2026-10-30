@@ -43,14 +43,14 @@ export function Inventario() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-slate-900 mb-4">Inventario</h2>
+      <h2 className="text-xl font-bold text-text mb-4">Inventario</h2>
 
       <form
         onSubmit={(e) => {
           e.preventDefault();
           createMut.mutate();
         }}
-        className="mb-6 flex flex-wrap items-end gap-3 rounded-2xl bg-white p-5 shadow-sm"
+        className="mb-6 flex flex-wrap items-end gap-3 rounded-card bg-white p-5 shadow-card"
       >
         <Field label="Insumo">
           <input
@@ -85,15 +85,15 @@ export function Inventario() {
         </Field>
         <button
           type="submit"
-          className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-700"
+          className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-active"
         >
           Agregar
         </button>
       </form>
 
-      <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+      <div className="overflow-hidden rounded-card bg-white shadow-card">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+          <thead className="bg-canvas text-left text-text-muted">
             <tr>
               <th className="px-4 py-3 font-medium">Insumo</th>
               <th className="px-4 py-3 font-medium">Stock</th>
@@ -106,7 +106,7 @@ export function Inventario() {
               const low = s.stock <= s.minStock;
               return (
                 <tr key={s.id} className={low ? 'bg-red-50' : ''}>
-                  <td className="px-4 py-3 font-medium text-slate-800">
+                  <td className="px-4 py-3 font-medium text-text">
                     {s.name}
                     {low && (
                       <span className="ml-2 rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
@@ -117,7 +117,7 @@ export function Inventario() {
                   <td className="px-4 py-3">
                     {s.stock} {s.unit}
                   </td>
-                  <td className="px-4 py-3 text-slate-500">{s.minStock}</td>
+                  <td className="px-4 py-3 text-text-muted">{s.minStock}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
                       <input
@@ -127,7 +127,7 @@ export function Inventario() {
                         onChange={(e) =>
                           setEntradas({ ...entradas, [s.id]: e.target.value })
                         }
-                        className="w-20 rounded border border-slate-300 px-2 py-1"
+                        className="w-20 rounded border border-border-muted px-2 py-1"
                       />
                       <button
                         onClick={() => {
@@ -152,12 +152,12 @@ export function Inventario() {
 }
 
 const inputCls =
-  'rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none';
+  'rounded-lg border border-border-muted px-3 py-2 text-sm focus:border-brand focus:outline-none';
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-medium text-slate-600">
+      <span className="mb-1 block text-xs font-medium text-text-muted">
         {label}
       </span>
       {children}
