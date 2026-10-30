@@ -39,3 +39,4 @@ backend/uploads/
 
 # Archivos temporales
 *.tmp
+.env.production
