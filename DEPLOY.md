@@ -107,11 +107,16 @@ DATABASE_URL="<la cadena de conexión de Neon>" npx prisma db seed
 
 (ejecútalo una sola vez, desde tu máquina, apuntando a la base de Neon).
 
-## Resumen de URLs
+## Resumen de URLs (desplegado)
 
 | Servicio | URL |
 |----------|-----|
-| App (frontend) | `https://sigo-dental.vercel.app` |
-| API (backend) | `https://sigo-dental-api.onrender.com/api` |
-| Swagger | `https://sigo-dental-api.onrender.com/api/docs` |
-| Base de datos | Panel de Neon |
+| App (frontend) | https://frontend-rust-nine-7im6rho6p3.vercel.app |
+| API (backend) | https://sigo-dental-api-ljom.onrender.com/api |
+| Swagger | https://sigo-dental-api-ljom.onrender.com/api/docs |
+| Base de datos | Panel de Neon (proyecto `sigo-dental`) |
+
+**Estas URLs están entregadas en el EVA de la universidad — no cambiar.**
+Si se necesita redesplegar el frontend, usar siempre el mismo proyecto
+(`vercel --prod` desde `frontend/`, ya vinculado) para que la URL se
+mantenga igual.
