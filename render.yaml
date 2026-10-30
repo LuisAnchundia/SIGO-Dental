@@ -7,18 +7,17 @@ services:
     plan: free
     region: oregon
     rootDir: backend
-    # Se fija npm@11 explicitamente: el npm que trae por defecto la imagen
-    # de Render valida el lockfile de forma mas estricta (y distinta a la
-    # version local) y lo rechaza con "Missing: ... from lock file" aunque
-    # el lockfile es valido. npm ci (no npm install) respeta exactamente
-    # package-lock.json, evitando que una dependencia transitiva resuelva
-    # una version mas nueva e incompatible (causo un build roto por ESM).
-    buildCommand: npm install -g npm@11 && npm ci && npx prisma generate && npm run build
+    # npm ci respeta exactamente package-lock.json (reproducible, igual a local).
+    buildCommand: npm ci && npx prisma generate && npm run build
     startCommand: npx prisma migrate deploy && node dist/main.js
     healthCheckPath: /api/health
     envVars:
+      # Node 22.11.0 no soporta cargar modulos ESM via require() (lo que usa
+      # @angular-devkit/schematics internamente en 'nest build' para leer
+      # magic-string), lo que rompia el build con ERR_REQUIRE_ESM. Se fija
+      # una version que si lo soporta (igual a la usada en desarrollo).
       - key: NODE_VERSION
-        value: 22.11.0
+        value: 24.15.0
       - key: PORT
         value: 3000
       - key: JWT_EXPIRES_IN
